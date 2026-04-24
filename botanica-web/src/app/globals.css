@@ -1,0 +1,85 @@
+/* VARIABLES: Nueva paleta "Plantas Vita" */
+:root {
+  --verde-oscuro: #3A5A40;   /* Verde bosque, serio y profundo */
+  --verde-principal: #588157; /* Verde salvia, muy natural */
+  --verde-claro: #DAD7CD;     /* Tono arena/tierra muy sutil para el fondo */
+  --blanco: #ffffff;
+  --gris-suave: #eeeeee;
+  --sombra: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--verde-claro);
+  color: #333;
+  line-height: 1.6;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* TARJETAS DE PRODUCTO */
+.card {
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--sombra);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Efecto de que la tarjeta "flota" */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* BOTONES PROFESIONALES */
+.btn-primario {
+  background-color: var(--verde-principal);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+.btn-primario:hover {
+  background-color: var(--verde-oscuro);
+}
+
+/* CARRITO (RESUMEN) */
+.carrito-flotante {
+  background: var(--verde-oscuro);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  position: sticky; /* Se queda pegado arriba al hacer scroll */
+  top: 10px;
+  z-index: 100;
+}
+
+/* --- ESTILOS DE IMAGEN CON HOVER SUAVE (UI/UX) --- */
+.imagen-hover-suave {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3/2; /* Mantenemos una proporción fija para que la tarjeta no salte */
+  object-fit: cover; /* Recorta la imagen para que encaje perfectamente */
+  transition: opacity 0.5s ease-in-out; /* Transición suave de 0.5 segundos */
+}

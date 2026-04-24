@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "nombre": "Monstera Deliciosa",
+    "precio": 3500,
+    "categoria": "Interior",
+    "dificultad": "Fácil",
+    "descripcion": "Famosa por sus hojas con agujeros, ideal para darle un toque tropical al living.",
+    "imagenPrincipal": "/images/Monstera-Deliciosa-01.webp",
+    "imagenHover": "/images/Monstera-Deliciosa-02.jpg"
+  },
+  {
+    "id": 2,
+    "nombre": "Cactus Asiento de Suegra",
+    "precio": 1200,
+    "categoria": "Exterior",
+    "dificultad": "Muy Fácil",
+    "descripcion": "Aguanta el sol directo y casi no necesita riego. ¡Perfecto para olvidadizos!",
+    "imagenPrincipal": "/images/Cactus-Asiento-De-Suegra-01.jpg",
+    "imagenHover": "/images/Cactus-Asiento-De-Suegra-02.jpg"
+  },
+  {
+    "id": 3,
+    "nombre": "Orquídea Phalaenopsis",
+    "precio": 8500,
+    "categoria": "Interior",
+    "dificultad": "Experto",
+    "descripcion": "Elegante y delicada. Requiere mucha luz indirecta y un riego muy específico.",
+    "imagenPrincipal": "/images/Orquidea-01.jpg",
+    "imagenHover": "/images/Orquidea-02.avif"
+  },
+  {
+    "id": 4,
+    "nombre": "Helecho Serrucho",
+    "precio": 2200,
+    "categoria": "Interior",
+    "dificultad": "Media",
+    "descripcion": "Le encanta la humedad. Ideal para tener en el baño o en lugares sombreados.",
+    "imagenPrincipal": "/images/Helecho-01.jpg",
+    "imagenHover": "/images/Helecho-02.webp"
+  }
+]
