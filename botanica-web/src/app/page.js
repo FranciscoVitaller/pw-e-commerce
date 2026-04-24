@@ -183,7 +183,7 @@ export default function Home() {
       </nav>
 
       {/* GRILLA DE PRODUCTOS */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', marginBottom: '60px' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px', marginBottom: '60px' }}>
         {cargando ? (
           <p>Cargando catálogo...</p>
         ) : (
