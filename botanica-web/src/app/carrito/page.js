@@ -60,9 +60,9 @@ export default function CarritoPage() {
               <button onClick={vaciarCarrito} style={{ padding: '12px 25px', backgroundColor: 'transparent', color: '#e74c3c', border: '1px solid #e74c3c', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
                 Vaciar Carrito
               </button>
-              <button onClick={finalizarCompra} className="btn-primario" style={{ padding: '15px 40px', fontSize: '1.1rem' }}>
+              <Link href="/checkout" className="btn-primario" style={{ padding: '15px 40px', fontSize: '1.1rem', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>
                 Finalizar Compra
-              </button>
+              </Link>
             </div>
           </div>
         </div>
