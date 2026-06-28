@@ -7,7 +7,7 @@ const client = new MercadoPagoConfig({
 });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
@@ -18,9 +18,33 @@ export async function POST(request) {
     console.log("🛒 Items recibidos en backend:", items);
     console.log(`👤 Usuario comprador: ${email}`);
 
+    // --- NUEVO: 1. VERIFICAR STOCK ANTES DE AVANZAR ---
+    for (const item of items) {
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .select("stock")
+        .eq("id", item.id)
+        .single();
+
+      if (productError || !product) {
+        throw new Error(`Error al verificar stock del producto ID: ${item.id}`);
+      }
+
+      if (Number(product.stock) < Number(item.cantidad)) {
+        console.warn(`⚠️ Freno: No hay stock suficiente del ID ${item.id}. Piden ${item.cantidad}, hay ${product.stock}`);
+        // Devolvemos un error 400 antes de crear nada
+        return NextResponse.json(
+          { error: `¡Ups! No hay stock suficiente de ${item.nombre || item.name}. Solo quedan ${product.stock} unidades.` },
+          { status: 400 }
+        );
+      }
+    }
+    console.log("✅ Verificación de stock superada. Hay plantas para todos.");
+    // --------------------------------------------------
+
     const totalCompra = items.reduce((acc, item) => acc + (Number(item.precio || item.price || 0) * Number(item.cantidad)), 0);
 
-    // 1. Guardamos el ticket principal en la tabla "orders"
+    // 2. Guardamos el ticket principal en la tabla "orders"
     const { data: orden, error: supabaseError } = await supabase
       .from("orders") 
       .insert([
@@ -41,8 +65,7 @@ export async function POST(request) {
 
     console.log(`💾 Orden guardada con éxito. ID: ${orden.id}`);
 
-    // --- NUEVO: GUARDAR LA COMANDA EN order_items ---
-    // Preparamos los datos tal cual como se llaman las columnas en tu foto
+    // 3. GUARDAR LA COMANDA EN order_items
     const comandaParaGuardar = items.map((item) => ({
       order_id: orden.id,
       product_id: item.id,
@@ -50,7 +73,6 @@ export async function POST(request) {
       precio_unitario: Number(item.precio || item.price || 0)
     }));
 
-    // Le decimos a Supabase que los anote en la tabla
     const { error: itemsError } = await supabase
       .from("order_items")
       .insert(comandaParaGuardar);
@@ -60,9 +82,8 @@ export async function POST(request) {
     }
     
     console.log("📝 ¡Comanda escrita! Productos anotados en order_items con éxito.");
-    // ------------------------------------------------
 
-    // 3. Creamos el link de Mercado Pago
+    // 4. Creamos el link de Mercado Pago
     const preference = new Preference(client);
     
     const mpItems = items.map((item) => ({
