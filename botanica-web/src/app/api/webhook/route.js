@@ -7,7 +7,7 @@ const client = new MercadoPagoConfig({
 });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
@@ -32,7 +32,7 @@ export async function POST(request) {
 
     if (orderId) {
       const { error: supabaseError } = await supabase
-        .from("ordenes")
+        .from("orders")
         .update({ estado: status }) 
         .eq("id", orderId);
 
@@ -47,6 +47,6 @@ export async function POST(request) {
 
   } catch (error) {
     console.error("❌ Error en el webhook:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 200 });
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
