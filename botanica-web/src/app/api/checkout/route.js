@@ -20,12 +20,12 @@ export async function POST(request) {
 
     const totalCompra = items.reduce((acc, item) => acc + (Number(item.precio || item.price || 0) * Number(item.cantidad)), 0);
 
-    // Guardamos incluyendo "user_id" para cumplir con la restricción de tu Supabase
+    // 1. Guardamos el ticket principal en la tabla "orders"
     const { data: orden, error: supabaseError } = await supabase
       .from("orders") 
       .insert([
         {
-          user_id: userId, // 👈 Se agrega el ID obligatorio
+          user_id: userId,
           user_email: email || 'fran@prueba.com',
           items: items,
           estado: "pending",
@@ -41,6 +41,28 @@ export async function POST(request) {
 
     console.log(`💾 Orden guardada con éxito. ID: ${orden.id}`);
 
+    // --- NUEVO: GUARDAR LA COMANDA EN order_items ---
+    // Preparamos los datos tal cual como se llaman las columnas en tu foto
+    const comandaParaGuardar = items.map((item) => ({
+      order_id: orden.id,
+      product_id: item.id,
+      cantidad: Number(item.cantidad),
+      precio_unitario: Number(item.precio || item.price || 0)
+    }));
+
+    // Le decimos a Supabase que los anote en la tabla
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(comandaParaGuardar);
+
+    if (itemsError) {
+      throw new Error(`Error al guardar en order_items: ${itemsError.message}`);
+    }
+    
+    console.log("📝 ¡Comanda escrita! Productos anotados en order_items con éxito.");
+    // ------------------------------------------------
+
+    // 3. Creamos el link de Mercado Pago
     const preference = new Preference(client);
     
     const mpItems = items.map((item) => ({
