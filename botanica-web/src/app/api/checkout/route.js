@@ -54,15 +54,15 @@ export async function POST(request) {
     const result = await preference.create({
       body: {
         items: mpItems,
-        notification_url: "https://popular-trance-tainted.ngrok-free.dev/api/webhook",
+        notification_url: "https://pw-e-commerce-flame.vercel.app/api/webhook",
         metadata: {
           order_id: orden.id,
           user_email: email || 'fran@prueba.com'
         },
         back_urls: {
-          success: "https://popular-trance-tainted.ngrok-free.dev", 
-          failure: "https://popular-trance-tainted.ngrok-free.dev",
-          pending: "https://popular-trance-tainted.ngrok-free.dev",
+          success: "https://pw-e-commerce-flame.vercel.app", 
+          failure: "https://pw-e-commerce-flame.vercel.app",
+          pending: "https://pw-e-commerce-flame.vercel.app",
         },
         auto_return: "approved",
       },
