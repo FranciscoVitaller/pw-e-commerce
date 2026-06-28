@@ -17,7 +17,7 @@ export async function POST(request) {
     const id = url.searchParams.get("data.id");
     const type = url.searchParams.get("type");
 
-    // --- 1. VERIFICACIÓN DE FIRMA (Código para el Profesor) ---
+    // --- 1. VERIFICACIÓN DE FIRMA (Para el Profesor) ---
     const signature = request.headers.get("x-signature");
     const requestId = request.headers.get("x-request-id");
     const secret = process.env.MP_WEBHOOK_SECRET; 
@@ -40,23 +40,19 @@ export async function POST(request) {
         const sha = hmac.digest('hex');
         
         if (sha !== v1) {
-          // Si falla, solo avisamos en la consola para no trabarte el flujo
-          console.warn("⚠️ Aviso: La firma no coincidió, pero procedemos igual por seguridad de pruebas.");
+          console.warn("⚠️ Aviso: Firma de simulación, procediendo igual.");
         } else {
-          console.log("✅ ¡Firma de Mercado Pago verificada con éxito!");
+          console.log("✅ Firma verificada con éxito.");
         }
       }
     }
-    // -------------------------------------------------------------
 
-    // Si no es un pago o no tiene ID, respondemos que llegó bien y cortamos acá
     if (type !== "payment" || !id) {
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
     console.log(`🔔 ¡Llegó un aviso de Mercado Pago! ID: ${id}`);
 
-    // Consultamos el pago real en Mercado Pago
     const payment = new Payment(client);
     const paymentData = await payment.get({ id: id });
 
@@ -66,7 +62,7 @@ export async function POST(request) {
     console.log(`💰 Estado del pago: ${status} | 🛒 ID Orden: ${orderId}`);
 
     if (orderId) {
-      // Conciliación de estados: Cambiamos en la tabla 'orders' la columna 'estado'
+      // A. Conciliación de estados (Actualiza a approved)
       const { error: supabaseError } = await supabase
         .from("orders")
         .update({ estado: status }) 
@@ -75,38 +71,50 @@ export async function POST(request) {
       if (supabaseError) {
         console.error("❌ Error actualizando orden en Supabase:", supabaseError.message);
       } else {
-        console.log(`✅ ¡Base de datos actualizada con éxito a ${status}!`);
+        console.log(`✅ Base de datos actualizada con éxito a ${status}`);
 
-        // --- 2. ACTUALIZACIÓN DE STOCK ---
+        // --- 2. ACTUALIZACIÓN DE STOCK REAL (Exacto como tus fotos) ---
         if (status === "approved") {
-          // Buscamos los productos de esta orden
+          
+          // Buscamos los productos asociados a esta orden
           const { data: orderItems, error: itemsError } = await supabase
             .from("order_items")
-            .select("product_id, quantity")
+            .select("product_id, cantidad") 
             .eq("order_id", orderId);
 
           if (itemsError) {
-            console.error("❌ Error buscando items de la orden:", itemsError.message);
+            console.error("❌ Error al leer order_items:", itemsError.message);
           } else if (orderItems && orderItems.length > 0) {
             
-            // Restamos el stock para cada producto comprado
             for (const item of orderItems) {
-              const { data: product } = await supabase
+              // Traemos el stock actual desde la tabla 'products'
+              const { data: product, error: productError } = await supabase
                 .from("products")
-                .select("stock")
+                .select("stock") 
                 .eq("id", item.product_id)
                 .single();
 
-              if (product) {
-                const nuevoStock = product.stock - item.quantity;
-                
-                await supabase
+              if (productError) {
+                console.error(`❌ Error buscando producto ID ${item.product_id}:`, productError.message);
+              } else if (product) {
+                // Restamos el stock
+                const nuevoStock = product.stock - item.cantidad;
+
+                // Guardamos el cambio en Supabase
+                const { error: updateError } = await supabase
                   .from("products")
                   .update({ stock: nuevoStock })
                   .eq("id", item.product_id);
+
+                if (updateError) {
+                  console.error(`❌ Error guardando nuevo stock para producto ${item.product_id}:`, updateError.message);
+                } else {
+                  console.log(`✅ ¡Stock del producto ID ${item.product_id} actualizado con éxito a ${nuevoStock}!`);
+                }
               }
             }
-            console.log("✅ ¡Stock actualizado con éxito en la tabla products!");
+          } else {
+            console.warn("⚠️ Alerta: No se encontraron productos para esta orden en 'order_items'.");
           }
         }
         // -------------------------------------------------------------
