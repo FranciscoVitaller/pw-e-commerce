@@ -5,15 +5,54 @@ import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 
+// Mapa detallado de imágenes para cada producto (base y hover)
+const mapaDeImagenes = {
+  cactus: {
+    base: "https://images.unsplash.com/photo-1518173946687-a4c189b663f7?q=80&w=400&h=300&auto=format&fit=crop", // Primer plano de cactus
+    hover: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=400&h=300&auto=format&fit=crop" // Zoom muy cercano en espinas
+  },
+  helecho: {
+    base: "https://images.unsplash.com/photo-1549416805-4f243003254c?q=80&w=400&h=300&auto=format&fit=crop", // Helecho exuberante
+    hover: "https://images.unsplash.com/photo-1521191024510-749e75ff8523?q=80&w=400&h=300&auto=format&fit=crop" // Detalle de frondas
+  },
+  monstera: {
+    base: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=400&h=300&auto=format&fit=crop", // Hojas de Monstera
+    hover: "https://images.unsplash.com/photo-1616486791244-34538d4e489c?q=80&w=400&h=300&auto=format&fit=crop" // Primer plano de agujeros de hoja
+  }
+};
+
+// Función para obtener la imagen base o hover de un producto por su nombre
+const getImagenParaPlanta = (planta, tipo) => {
+  const nombre = (planta.name || planta.nombre || "").toLowerCase();
+  if (nombre.includes("cactus")) return mapaDeImagenes.cactus[tipo];
+  if (nombre.includes("helecho")) return mapaDeImagenes.helecho[tipo];
+  if (nombre.includes("monstera")) return mapaDeImagenes.monstera[tipo];
+  // Imagen por defecto si no se encuentra
+  return tipo === "base"
+    ? "https://images.unsplash.com/photo-1501004318641-729e8e2c86e7?q=80&w=400&h=300&auto=format&fit=crop"
+    : "https://images.unsplash.com/photo-1473448912268-202a115b0d5a?q=80&w=400&h=300&auto=format&fit=crop";
+};
+
+// Componente de imagen para manejar el efecto hover
+const HoverableImage = ({ baseSrc, hoverSrc, alt }) => {
+  const [currentSrc, setCurrentSrc] = useState(baseSrc);
+
+  return (
+    <img
+      src={currentSrc}
+      alt={alt}
+      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "src 0.3s ease-in-out" }}
+      onMouseEnter={() => setCurrentSrc(hoverSrc)}
+      onMouseLeave={() => setCurrentSrc(baseSrc)}
+    />
+  );
+};
+
 export default function Home() {
   const [plantas, setPlantas] = useState([]);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [pagando, setPagando] = useState(false);
-  
-  // Nuevos estados para el buscador y filtro
-  const [busqueda, setBusqueda] = useState("");
-  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   
   const { agregarAlCarrito, carrito, cantidadTotal, precioTotal, vaciarCarrito, restarDelCarrito } = useCart();
   const router = useRouter();
@@ -88,185 +127,93 @@ export default function Home() {
     setPagando(false);
   };
 
-  // Lógica de filtrado y búsqueda
-  const plantasFiltradas = plantas.filter((planta) => {
-    const nombrePlanta = (planta.name || planta.nombre || "").toLowerCase();
-    const categoriaPlanta = (planta.category || planta.categoria || "General");
-    
-    const coincideBusqueda = nombrePlanta.includes(busqueda.toLowerCase());
-    const coincideCategoria = categoriaFiltro === "Todas" || categoriaPlanta === categoriaFiltro;
-    
-    return coincideBusqueda && coincideCategoria;
-  });
-
-  // Extraemos las categorías únicas para el menú desplegable
-  const categoriasUnicas = ["Todas", ...new Set(plantas.map(p => p.category || p.categoria || "General"))];
-
   if (cargando) {
-    return <div style={{ textAlign: "center", marginTop: "50px", fontSize: "1.5rem" }}>Cargando Plantas Vita... 🌿</div>;
+    return <div style={{ textAlign: "center", marginTop: "50px" }}>Cargando Plantas Vita...</div>;
   }
 
   return (
-    <div style={{ 
-      fontFamily: "system-ui, -apple-system, sans-serif", 
-      minHeight: "100vh",
-      // Fondo verde oscuro con imagen de plantas de fondo
-      backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop')",
-      backgroundSize: "cover",
-      backgroundAttachment: "fixed",
-      backgroundPosition: "center",
-      display: "flex",
-      flexDirection: "column"
-    }}>
-      
-      {/* HEADER / NAVBAR CON BLUR */}
-      <div style={{ 
-        backgroundColor: "rgba(30, 61, 47, 0.8)", 
-        backdropFilter: "blur(10px)",
-        color: "white", 
-        padding: "15px 30px", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-      }}>
-        <div><h1 style={{ margin: 0, fontSize: "1.8rem", letterSpacing: "1px" }}>🌿 Plantas Vita</h1></div>
-        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+    <div style={{ fontFamily: "Arial, sans-serif", backgroundColor: "#f9f9f9", minHeight: "100vh" }}>
+      {/* Encabezado modificado: centrado y delicado */}
+      <div style={{ backgroundColor: "#1e3d2f", color: "white", padding: "10px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ flex: 1 }}>{/* Espaciador izquierdo */}</div>
+        <div style={{ flex: 2, textAlign: "center" }}>
+          {/* Título centrado con fuente delicada */}
+          <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: "300", fontFamily: "'Poppins', sans-serif" }}>🌿 Plantas Vita</h1>
+        </div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "15px", justifyContent: "flex-end" }}>
           {usuario ? (
             <>
-              <span style={{ fontSize: "0.9rem" }}>Hola, <strong>{usuario.email}</strong></span>
-              <button onClick={manejarCerrarSesion} style={{ backgroundColor: "transparent", color: "white", border: "1px solid white", padding: "8px 15px", borderRadius: "5px", cursor: "pointer", transition: "0.3s" }}>Salir</button>
+              <span style={{ fontSize: "0.9rem" }}>Conectado como: <strong>{usuario.email}</strong></span>
+              <button onClick={manejarCerrarSesion} style={{ backgroundColor: "#e74c3c", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}>Cerrar Sesión</button>
             </>
           ) : (
-            <button onClick={() => router.push("/login")} style={{ backgroundColor: "#2ecc71", color: "white", border: "none", padding: "8px 15px", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>Iniciar Sesión</button>
+            <button onClick={() => router.push("/login")} style={{ backgroundColor: "#2ecc71", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}>Iniciar Sesión</button>
           )}
         </div>
       </div>
 
-      {/* CONTENIDO PRINCIPAL CON BLUR */}
-      <div style={{ 
-        flex: 1,
-        maxWidth: "1200px", 
-        margin: "40px auto", 
-        padding: "30px", 
-        display: "flex", 
-        gap: "30px",
-        backgroundColor: "rgba(255, 255, 255, 0.85)",
-        backdropFilter: "blur(15px)",
-        borderRadius: "15px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-      }}>
-        
-        {/* COLUMNA IZQUIERDA: CATÁLOGO */}
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px", display: "flex", gap: "30px" }}>
         <div style={{ flex: 3 }}>
-          <h2 style={{ color: "#1e3d2f", marginTop: 0, fontSize: "2rem" }}>Nuestro Catálogo</h2>
-          
-          {/* BARRA DE BÚSQUEDA Y FILTRO */}
-          <div style={{ display: "flex", gap: "15px", marginBottom: "30px" }}>
-            <input 
-              type="text" 
-              placeholder="Buscar planta por nombre..." 
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "1rem", outline: "none" }}
-            />
-            <select 
-              value={categoriaFiltro}
-              onChange={(e) => setCategoriaFiltro(e.target.value)}
-              style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "1rem", cursor: "pointer", backgroundColor: "white" }}
-            >
-              {categoriasUnicas.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* GRILLA DE PRODUCTOS */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "25px" }}>
-            {plantasFiltradas.length === 0 ? (
-              <p style={{ color: "#666" }}>No se encontraron plantas con esos filtros.</p>
-            ) : (
-              plantasFiltradas.map((planta) => (
-                <div key={planta.id} style={{ backgroundColor: "white", padding: "15px", borderRadius: "12px", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "transform 0.2s" }} 
-                     onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
-                     onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}>
-                  
-                  <div>
-                    {/* IMAGEN CON EFECTO HOVER */}
-                    <div style={{ width: "100%", height: "220px", borderRadius: "8px", marginBottom: "15px", overflow: "hidden", position: "relative" }}>
-                      <img 
-                        src={planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
-                        alt={planta.name || planta.nombre}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.4s ease-in-out" }}
-                        onMouseOver={(e) => e.currentTarget.src = planta.image_hover_url || "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&w=500&q=80"}
-                        onMouseOut={(e) => e.currentTarget.src = planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"}
-                      />
-                    </div>
-                    <h3 style={{ margin: "0 0 5px 0", color: "#1e3d2f", fontSize: "1.3rem" }}>{planta.name || planta.nombre}</h3>
-                    <p style={{ color: "#7f8c8d", fontSize: "0.9rem", margin: "0 0 15px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>{planta.category || planta.categoria || "General"}</p>
+          <h1 style={{ color: "#1e3d2f", marginBottom: "30px" }}>Nuestro Catálogo de Plantas</h1>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
+            {plantas.map((planta) => (
+              <div key={planta.id} style={{ backgroundColor: "white", padding: "20px", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  {/* Contenedor de imagen modificado: desbordamiento oculto para las fotos */}
+                  <div style={{ width: "100%", height: "200px", backgroundColor: "#eee", borderRadius: "8px", marginBottom: "15px", overflow: "hidden" }}>
+                    {/* Imagen dinámica con efecto hover */}
+                    <HoverableImage
+                      baseSrc={getImagenParaPlanta(planta, 'base')}
+                      hoverSrc={getImagenParaPlanta(planta, 'hover')}
+                      alt={planta.name || planta.nombre}
+                    />
                   </div>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#27ae60" }}>${planta.price || planta.precio}</span>
-                    <button onClick={() => agregarAlCarrito(planta)} style={{ backgroundColor: "#1e3d2f", color: "white", border: "none", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", transition: "background 0.3s" }}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2ecc71"}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#1e3d2f"}>
-                      Sumar 🛒
-                    </button>
-                  </div>
+                  <h3 style={{ margin: "0 0 10px 0", color: "#333" }}>{planta.name || planta.nombre}</h3>
+                  <p style={{ color: "#777", fontSize: "0.9rem", margin: "0 0 15px 0" }}>Categoría: {planta.category || planta.categoria || "General"}</p>
                 </div>
-              ))
-            )}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#1e3d2f" }}>${planta.price || planta.precio}</span>
+                  <button onClick={() => agregarAlCarrito(planta)} style={{ backgroundColor: "#1e3d2f", color: "white", border: "none", padding: "8px 12px", borderRadius: "5px", cursor: "pointer" }}>Agregar 🛒</button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: CARRITO */}
-        <div style={{ flex: 1, backgroundColor: "white", padding: "25px", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", height: "fit-content", position: "sticky", top: "100px" }}>
-          <h2 style={{ marginTop: "0", color: "#1e3d2f", borderBottom: "2px solid #ecf0f1", paddingBottom: "15px", fontSize: "1.5rem" }}>Tu Carrito ({cantidadTotal})</h2>
-          
+        <div style={{ flex: 1, backgroundColor: "white", padding: "20px", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", height: "fit-content" }}>
+          <h2 style={{ marginTop: "0", color: "#1e3d2f", borderBottom: "2px solid #f0f0f0", paddingBottom: "10px" }}>Tu Carrito ({cantidadTotal})</h2>
           {carrito.length === 0 ? (
-            <p style={{ color: "#95a5a6", textAlign: "center", marginTop: "30px", padding: "20px 0" }}>Aún no elegiste ninguna planta.</p>
+            <p style={{ color: "#999", textAlign: "center", marginTop: "20px" }}>El carrito está vacío.</p>
           ) : (
             <>
-              <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px", maxHeight: "300px", overflowY: "auto" }}>
                 {carrito.map((item) => (
-                  <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f9f9f9", paddingBottom: "10px" }}>
+                  <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.9rem" }}>
                     <div>
-                      <div style={{ fontWeight: "bold", color: "#2c3e50" }}>{item.name || item.nombre}</div>
-                      <div style={{ color: "#7f8c8d", fontSize: "0.9rem" }}>{item.cantidad} x ${item.price || item.precio}</div>
+                      <div style={{ fontWeight: "bold" }}>{item.name || item.nombre}</div>
+                      <div style={{ color: "#777" }}>{item.cantidad} x ${item.price || item.precio}</div>
                     </div>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <button onClick={() => restarDelCarrito(item.id)} style={{ padding: "5px 10px", cursor: "pointer", backgroundColor: "#ecf0f1", border: "none", borderRadius: "5px", fontWeight: "bold", color: "#e74c3c" }}>-</button>
-                      <button onClick={() => agregarAlCarrito(item)} style={{ padding: "5px 10px", cursor: "pointer", backgroundColor: "#ecf0f1", border: "none", borderRadius: "5px", fontWeight: "bold", color: "#27ae60" }}>+</button>
+                    <div style={{ display: "flex", gap: "5px" }}>
+                      <button onClick={() => restarDelCarrito(item.id)} style={{ padding: "2px 8px", cursor: "pointer" }}>-</button>
+                      <button onClick={() => agregarAlCarrito(item)} style={{ padding: "2px 8px", cursor: "pointer" }}>+</button>
                     </div>
                   </div>
                 ))}
               </div>
-              
-              <div style={{ borderTop: "2px solid #ecf0f1", paddingTop: "20px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "1.3rem", marginBottom: "20px" }}>
+              <div style={{ borderTop: "2px solid #f0f0f0", paddingTop: "15px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "1.1rem", marginBottom: "15px" }}>
                   <span>Total:</span>
-                  <span style={{ color: "#27ae60" }}>${precioTotal}</span>
+                  <span style={{ color: "#1e3d2f" }}>${precioTotal}</span>
                 </div>
-                <button onClick={manejarPago} disabled={pagando} style={{ width: "100%", backgroundColor: pagando ? "#95a5a6" : "#27ae60", color: "white", border: "none", padding: "15px", borderRadius: "8px", fontWeight: "bold", fontSize: "1.1rem", cursor: pagando ? "wait" : "pointer", transition: "0.3s", boxShadow: "0 4px 6px rgba(39, 174, 96, 0.2)" }}>
-                  {pagando ? "Procesando..." : "Finalizar Compra 💳"}
+                <button onClick={manejarPago} disabled={pagando} style={{ width: "100%", backgroundColor: pagando ? "#95a5a6" : "#2ecc71", color: "white", border: "none", padding: "12px", borderRadius: "5px", fontWeight: "bold", fontSize: "1rem", cursor: pagando ? "wait" : "pointer" }}>
+                  {pagando ? "Conectando..." : "Iniciar Compra 💳"}
                 </button>
-                <button onClick={vaciarCarrito} style={{ width: "100%", backgroundColor: "transparent", color: "#95a5a6", border: "none", marginTop: "15px", fontSize: "0.9rem", cursor: "pointer", textDecoration: "underline" }}>Vaciar Carrito</button>
+                <button onClick={vaciarCarrito} style={{ width: "100%", backgroundColor: "transparent", color: "#aaa", border: "none", marginTop: "10px", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline" }}>Vaciar Carrito</button>
               </div>
             </>
           )}
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer style={{ backgroundColor: "#152b21", color: "#bdc3c7", textAlign: "center", padding: "20px", marginTop: "auto" }}>
-        <p style={{ margin: 0 }}>© {new Date().getFullYear()} Plantas Vita - Todos los derechos reservados.</p>
-        <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem" }}>Proyecto Integrador - E-Commerce B2C</p>
-      </footer>
-
     </div>
   );
 }
