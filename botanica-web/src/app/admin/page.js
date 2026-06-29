@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+// 👇 ACÁ ESTÁ EL CAMBIO: agregamos ../ extra
+import { supabase } from "../../lib/supabase"; 
 import { useRouter } from "next/navigation";
 
 export default function AdminPanel() {
