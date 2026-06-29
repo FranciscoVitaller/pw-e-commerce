@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// 👇 ACÁ ESTÁ EL CAMBIO: agregamos ../ extra
 import { supabase } from "../../lib/supabase"; 
 import { useRouter } from "next/navigation";
 
@@ -10,7 +9,6 @@ export default function AdminPanel() {
   const [cargando, setCargando] = useState(true);
   const [mostrarModal, setMostrarModal] = useState(false);
   
-  // Estado para el formulario de nuevo producto
   const [nuevoProd, setNuevoProd] = useState({
     nombre: "",
     precio: "",
@@ -41,8 +39,6 @@ export default function AdminPanel() {
 
   const agregarProducto = async (e) => {
     e.preventDefault();
-    
-    // Insertamos en Supabase
     const { data, error } = await supabase
       .from("products")
       .insert([
@@ -58,7 +54,6 @@ export default function AdminPanel() {
     if (error) {
       alert("Error al guardar: " + error.message);
     } else {
-      // Si salió bien, cerramos el modal, limpiamos el formulario y actualizamos la lista
       setMostrarModal(false);
       setNuevoProd({ nombre: "", precio: "", stock: "", categoria: "" });
       setProductos([data[0], ...productos]);
@@ -66,74 +61,106 @@ export default function AdminPanel() {
   };
 
   if (cargando) {
-    return <div style={{ backgroundColor: "#0a0a0a", color: "white", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>Cargando panel...</div>;
+    return <div style={{ textAlign: "center", marginTop: "50px", color: "white" }}>Cargando Panel de Control... 🌿</div>;
   }
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ 
+      display: "flex", 
+      minHeight: "100vh", 
+      backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop')",
+      backgroundSize: "cover",
+      backgroundAttachment: "fixed",
+      fontFamily: "system-ui, sans-serif" 
+    }}>
       
-      {/* SIDEBAR (Menú lateral) */}
-      <aside style={{ width: "250px", borderRight: "1px solid #27272a", padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
-        <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#f97316", marginBottom: "20px" }}>
-          VITA <span style={{ color: "#71717a", fontSize: "0.9rem", fontWeight: "normal" }}>admin</span>
+      {/* SIDEBAR ESTILO VITA */}
+      <aside style={{ 
+        width: "260px", 
+        backgroundColor: "rgba(30, 61, 47, 0.9)", 
+        backdropFilter: "blur(10px)",
+        padding: "30px 20px", 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: "25px",
+        color: "white"
+      }}>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <h2 style={{ margin: 0, fontWeight: "200", fontSize: "1.5rem", letterSpacing: "2px" }}>🌿 VITA</h2>
+          <span style={{ fontSize: "0.7rem", opacity: 0.8, letterSpacing: "1px" }}>GESTIÓN INTERNA</span>
         </div>
         
-        <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <button style={{ textAlign: "left", padding: "10px 15px", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#a1a1aa", cursor: "pointer", fontSize: "1rem" }}>Dashboard</button>
-          <button style={{ textAlign: "left", padding: "10px 15px", borderRadius: "8px", border: "none", backgroundColor: "rgba(249, 115, 22, 0.1)", color: "#f97316", cursor: "pointer", fontSize: "1rem", fontWeight: "bold" }}>📦 Productos</button>
-          <button style={{ textAlign: "left", padding: "10px 15px", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#a1a1aa", cursor: "pointer", fontSize: "1rem" }}>📋 Pedidos</button>
+        <nav style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ padding: "12px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "0.9rem", opacity: 0.6 }}>Resumen</div>
+          <div style={{ padding: "12px 15px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "0.9rem", fontWeight: "bold" }}>Inventario de Plantas</div>
+          <div style={{ padding: "12px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "0.9rem", opacity: 0.6 }}>Órdenes de Compra</div>
         </nav>
         
-        <button onClick={() => router.push("/")} style={{ marginTop: "auto", padding: "10px", backgroundColor: "#27272a", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>Volver a la tienda</button>
+        <button onClick={() => router.push("/")} style={{ marginTop: "auto", padding: "12px", backgroundColor: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "8px", cursor: "pointer", fontSize: "0.8rem" }}>
+          ← Ir a la Tienda
+        </button>
       </aside>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main style={{ flex: 1, padding: "40px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
+      <main style={{ flex: 1, padding: "40px", backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)" }}>
+        
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: "1.8rem" }}>Productos</h1>
-            <p style={{ margin: "5px 0 0 0", color: "#a1a1aa" }}>{productos.length} productos en total</p>
+            <h1 style={{ margin: 0, fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Gestión de Stock</h1>
+            <p style={{ margin: "5px 0 0 0", color: "#555" }}>Tienes {productos.length} variedades registradas</p>
           </div>
           <button 
             onClick={() => setMostrarModal(true)}
-            style={{ backgroundColor: "#f97316", color: "white", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}
+            style={{ 
+              backgroundColor: "#2ecc71", 
+              color: "white", 
+              border: "none", 
+              padding: "12px 25px", 
+              borderRadius: "30px", 
+              fontWeight: "bold", 
+              cursor: "pointer", 
+              boxShadow: "0 4px 15px rgba(46, 204, 113, 0.3)",
+              transition: "0.3s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#27ae60"}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#2ecc71"}
           >
-            + Nuevo producto
+            + Añadir Nueva Planta
           </button>
         </div>
 
-        {/* TABLA DE PRODUCTOS */}
-        <div style={{ backgroundColor: "#18181b", borderRadius: "12px", border: "1px solid #27272a", overflow: "hidden" }}>
+        {/* TABLA ESTILO VITA */}
+        <div style={{ backgroundColor: "white", borderRadius: "15px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)", overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #27272a", color: "#a1a1aa", fontSize: "0.9rem" }}>
-                <th style={{ padding: "15px 20px", fontWeight: "normal" }}>Producto</th>
-                <th style={{ padding: "15px 20px", fontWeight: "normal" }}>Precio</th>
-                <th style={{ padding: "15px 20px", fontWeight: "normal" }}>Stock</th>
-                <th style={{ padding: "15px 20px", fontWeight: "normal" }}>Estado</th>
-                <th style={{ padding: "15px 20px", fontWeight: "normal", textAlign: "right" }}>Acciones</th>
+              <tr style={{ backgroundColor: "#f8faf9", color: "#1e3d2f", fontSize: "0.85rem", borderBottom: "1px solid #eee" }}>
+                <th style={{ padding: "20px" }}>ESPECIE</th>
+                <th style={{ padding: "20px" }}>PRECIO</th>
+                <th style={{ padding: "20px" }}>STOCK DISPONIBLE</th>
+                <th style={{ padding: "20px" }}>ESTADO</th>
+                <th style={{ padding: "20px", textAlign: "right" }}>GESTIÓN</th>
               </tr>
             </thead>
             <tbody>
               {productos.map((prod) => (
-                <tr key={prod.id} style={{ borderBottom: "1px solid #27272a", transition: "background 0.2s" }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#27272a"} onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
-                  <td style={{ padding: "15px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div style={{ width: "40px", height: "40px", backgroundColor: "#27272a", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center" }}>🌿</div>
+                <tr key={prod.id} style={{ borderBottom: "1px solid #f9f9f9", transition: "0.2s" }}>
+                  <td style={{ padding: "18px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                      <div style={{ fontSize: "1.2rem" }}>🌱</div>
                       <div>
-                        <div style={{ fontWeight: "bold" }}>{prod.name || prod.nombre}</div>
-                        <div style={{ color: "#71717a", fontSize: "0.8rem" }}>{prod.category || prod.categoria || "Sin categoría"}</div>
+                        <div style={{ fontWeight: "600", color: "#333" }}>{prod.name || prod.nombre}</div>
+                        <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.category || prod.categoria || "General"}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: "15px 20px", color: "#f97316", fontWeight: "bold" }}>${prod.price || prod.precio}</td>
-                  <td style={{ padding: "15px 20px" }}>{prod.stock || 0} u.</td>
-                  <td style={{ padding: "15px 20px" }}>
-                    <span style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "#22c55e", padding: "4px 8px", borderRadius: "4px", fontSize: "0.8rem", fontWeight: "bold" }}>Activo</span>
+                  <td style={{ padding: "18px 20px", color: "#27ae60", fontWeight: "bold" }}>${prod.price || prod.precio}</td>
+                  <td style={{ padding: "18px 20px", color: "#555" }}>{prod.stock || 0} unidades</td>
+                  <td style={{ padding: "18px 20px" }}>
+                    <span style={{ color: "#27ae60", fontSize: "0.75rem", fontWeight: "bold", border: "1px solid #27ae60", padding: "3px 8px", borderRadius: "20px" }}>DISPONIBLE</span>
                   </td>
-                  <td style={{ padding: "15px 20px", textAlign: "right", color: "#a1a1aa", fontSize: "0.9rem" }}>
-                    <span style={{ cursor: "pointer", marginRight: "15px" }}>Editar</span>
-                    <span style={{ cursor: "pointer", color: "#ef4444" }}>Desactivar</span>
+                  <td style={{ padding: "18px 20px", textAlign: "right", color: "#aaa", fontSize: "0.8rem" }}>
+                    <span style={{ cursor: "pointer", marginRight: "15px", textDecoration: "underline" }}>Modificar</span>
+                    <span style={{ cursor: "pointer", color: "#e74c3c" }}>Quitar</span>
                   </td>
                 </tr>
               ))}
@@ -144,35 +171,35 @@ export default function AdminPanel() {
 
       {/* MODAL PARA AGREGAR PRODUCTO */}
       {mostrarModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
-          <div style={{ backgroundColor: "#18181b", padding: "30px", borderRadius: "12px", border: "1px solid #27272a", width: "100%", maxWidth: "400px" }}>
-            <h2 style={{ marginTop: 0, marginBottom: "20px" }}>Crear nuevo producto</h2>
-            <form onSubmit={agregarProducto} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(30, 61, 47, 0.6)", backdropFilter: "blur(5px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
+          <div style={{ backgroundColor: "white", padding: "40px", borderRadius: "20px", width: "100%", maxWidth: "450px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)" }}>
+            <h2 style={{ marginTop: 0, marginBottom: "25px", color: "#1e3d2f", fontWeight: "300", textAlign: "center" }}>Nueva Planta para el Catálogo</h2>
+            <form onSubmit={agregarProducto} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Nombre del producto</label>
-                <input required type="text" name="nombre" value={nuevoProd.nombre} onChange={manejarCambioInput} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #3f3f46", backgroundColor: "#27272a", color: "white", outline: "none" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>NOMBRE DE LA PLANTA</label>
+                <input required type="text" name="nombre" value={nuevoProd.nombre} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Categoría</label>
-                <input required type="text" name="categoria" value={nuevoProd.categoria} onChange={manejarCambioInput} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #3f3f46", backgroundColor: "#27272a", color: "white", outline: "none" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>CATEGORÍA</label>
+                <input required type="text" name="categoria" value={nuevoProd.categoria} onChange={manejarCambioInput} placeholder="Ej: Interior, Exterior..." style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
               </div>
 
-              <div style={{ display: "flex", gap: "15px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px", flex: 1 }}>
-                  <label style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Precio ($)</label>
-                  <input required type="number" name="precio" value={nuevoProd.precio} onChange={manejarCambioInput} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #3f3f46", backgroundColor: "#27272a", color: "white", outline: "none" }} />
+              <div style={{ display: "flex", gap: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>PRECIO ($)</label>
+                  <input required type="number" name="precio" value={nuevoProd.precio} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px", flex: 1 }}>
-                  <label style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Stock</label>
-                  <input required type="number" name="stock" value={nuevoProd.stock} onChange={manejarCambioInput} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #3f3f46", backgroundColor: "#27272a", color: "white", outline: "none" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>STOCK</label>
+                  <input required type="number" name="stock" value={nuevoProd.stock} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
-                <button type="button" onClick={() => setMostrarModal(false)} style={{ padding: "10px 15px", backgroundColor: "transparent", color: "white", border: "1px solid #3f3f46", borderRadius: "6px", cursor: "pointer" }}>Cancelar</button>
-                <button type="submit" style={{ padding: "10px 15px", backgroundColor: "#f97316", color: "white", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer" }}>Guardar producto</button>
+              <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "20px" }}>
+                <button type="button" onClick={() => setMostrarModal(false)} style={{ padding: "12px 25px", backgroundColor: "transparent", color: "#aaa", border: "none", cursor: "pointer", fontWeight: "bold" }}>CANCELAR</button>
+                <button type="submit" style={{ padding: "12px 30px", backgroundColor: "#1e3d2f", color: "white", border: "none", borderRadius: "30px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>GUARDAR PLANTA</button>
               </div>
             </form>
           </div>
