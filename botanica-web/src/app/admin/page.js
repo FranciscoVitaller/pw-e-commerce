@@ -52,10 +52,10 @@ export default function AdminPanel() {
     setModoModal("editar");
     setIdSeleccionado(prod.id);
     setFormProd({
-      nombre: prod.name || prod.nombre || "",
-      precio: prod.price || prod.precio || "",
+      nombre: prod.nombre || prod.name || "",
+      precio: prod.precio || prod.price || "",
       stock: prod.stock || 0,
-      categoria: prod.category || prod.categoria || ""
+      categoria: prod.categoria || prod.category || ""
     });
     setMostrarModal(true);
   };
@@ -65,46 +65,47 @@ export default function AdminPanel() {
     setFormProd({ ...formProd, [name]: value });
   };
 
-  // Guardar (aplica para insertar nuevo o actualizar existente)
+  // Guardar cambios e insertar (Sincronizado con Supabase y Frontend)
   const guardarProducto = async (e) => {
     e.preventDefault();
     
+    // Mapeo de datos usando los nombres reales de las columnas en tu Supabase
+    const datosPlanta = {
+      nombre: formProd.nombre, 
+      name: formProd.nombre, // Mantenemos ambos por si acaso, pero la clave es que coincida con tu esquema
+      precio: Number(formProd.precio),
+      price: Number(formProd.precio),
+      stock: Number(formProd.stock),
+      categoria: formProd.categoria, // 👈 CORRECCIÓN PRINCIPAL PARA TU ERROR
+      category: formProd.categoria
+    };
+
     if (modoModal === "crear") {
-      // Lógica de inserción
+      // Guardar nuevo producto en Supabase
       const { data, error } = await supabase
         .from("products")
-        .insert([
-          { 
-            name: formProd.nombre, 
-            price: Number(formProd.precio), 
-            stock: Number(formProd.stock),
-            category: formProd.categoria 
-          }
-        ])
+        .insert([datosPlanta])
         .select();
 
       if (error) {
         alert("Error al guardar: " + error.message);
       } else {
+        // Actualiza el estado local para que se vea reflejado inmediatamente sin recargar
         setProductos([data[0], ...productos]);
         setMostrarModal(false);
       }
     } else {
-      // Lógica de actualización (Modificar)
+      // Actualizar producto existente en Supabase (Modificar)
       const { data, error } = await supabase
         .from("products")
-        .update({
-          name: formProd.nombre,
-          price: Number(formProd.precio),
-          stock: Number(formProd.stock),
-          category: formProd.categoria
-        })
+        .update(datosPlanta)
         .eq("id", idSeleccionado)
         .select();
 
       if (error) {
         alert("Error al actualizar: " + error.message);
       } else {
+        // Actualiza el estado local reemplazando los datos viejos por los nuevos
         setProductos(productos.map(p => p.id === idSeleccionado ? data[0] : p));
         setMostrarModal(false);
       }
@@ -157,7 +158,6 @@ export default function AdminPanel() {
           <span style={{ fontSize: "0.7rem", opacity: 0.8, letterSpacing: "1px" }}>GESTIÓN INTERNA</span>
         </div>
         
-        {/* Navegación funcional entre vistas */}
         <nav style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div 
             onClick={() => setVistaActiva("resumen")}
@@ -223,7 +223,7 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* PESTAÑA 2: INVENTARIO (TABLA COMPLETA CON CRUD) */}
+        {/* PESTAÑA 2: INVENTARIO */}
         {vistaActiva === "inventario" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
@@ -261,12 +261,12 @@ export default function AdminPanel() {
                         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                           <div style={{ fontSize: "1.2rem" }}>🌱</div>
                           <div>
-                            <div style={{ fontWeight: "600", color: "#333" }}>{prod.name || prod.nombre}</div>
-                            <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.category || prod.categoria || "General"}</div>
+                            <div style={{ fontWeight: "600", color: "#333" }}>{prod.nombre || prod.name}</div>
+                            <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.categoria || prod.category || "General"}</div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "18px 20px", color: "#27ae60", fontWeight: "bold" }}>${prod.price || prod.precio}</td>
+                      <td style={{ padding: "18px 20px", color: "#27ae60", fontWeight: "bold" }}>${prod.precio || prod.price}</td>
                       <td style={{ padding: "18px 20px", color: (prod.stock || 0) < 5 ? "#e74c3c" : "#555", fontWeight: (prod.stock || 0) < 5 ? "bold" : "normal" }}>
                         {prod.stock || 0} unidades
                       </td>
@@ -288,7 +288,7 @@ export default function AdminPanel() {
                           Modificar
                         </span>
                         <span 
-                          onClick={() => eliminarProducto(prod.id, prod.name || prod.nombre)}
+                          onClick={() => eliminarProducto(prod.id, prod.nombre || prod.name)}
                           style={{ cursor: "pointer", color: "#e74c3c", fontWeight: "500", textDecoration: "underline" }}
                         >
                           Quitar
@@ -302,7 +302,7 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* PESTAÑA 3: ÓRDENES DE COMPRA (HISTORIAL DE SIMULACIÓN) */}
+        {/* PESTAÑA 3: ÓRDENES DE COMPRA */}
         {vistaActiva === "ordenes" && (
           <div>
             <h1 style={{ margin: "0 0 10px 0", fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Registro de Órdenes</h1>
