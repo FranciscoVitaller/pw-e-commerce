@@ -8,19 +8,19 @@ export default function AdminPanel() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   
-  // Control de la pestaña activa ("resumen", "inventario", "ordenes")
   const [vistaActiva, setVistaActiva] = useState("inventario");
-  
-  // Control del Modal único (Crear y Editar)
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [modoModal, setModoModal] = useState("crear"); // "crear" o "editar"
+  const [modoModal, setModoModal] = useState("crear"); 
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   
+  // 🔥 AHORA EL ESTADO TIENE EXACTAMENTE TUS COLUMNAS 🔥
   const [formProd, setFormProd] = useState({
     nombre: "",
+    categoria: "",
     precio: "",
     stock: "",
-    categoria: ""
+    imagen_url: "",
+    descripcion: ""
   });
 
   const router = useRouter();
@@ -30,6 +30,7 @@ export default function AdminPanel() {
   }, []);
 
   const traerProductos = async () => {
+    // Traemos los productos ordenados por los más nuevos primero
     const { data, error } = await supabase.from("products").select("*").order('id', { ascending: false });
     if (error) {
       console.error("Error al traer productos:", error);
@@ -39,23 +40,23 @@ export default function AdminPanel() {
     setCargando(false);
   };
 
-  // Abrir modal en modo CREAR
   const abrirModalCrear = () => {
     setModoModal("crear");
     setIdSeleccionado(null);
-    setFormProd({ nombre: "", precio: "", stock: "", categoria: "" });
+    setFormProd({ nombre: "", categoria: "", precio: "", stock: "", imagen_url: "", descripcion: "" });
     setMostrarModal(true);
   };
 
-  // Abrir modal en modo EDITAR (Modificar) con los datos cargados
   const abrirModalEditar = (prod) => {
     setModoModal("editar");
     setIdSeleccionado(prod.id);
     setFormProd({
-      nombre: prod.nombre || prod.name || "",
-      precio: prod.precio || prod.price || "",
+      nombre: prod.nombre || "",
+      categoria: prod.categoria || "",
+      precio: prod.precio || "",
       stock: prod.stock || 0,
-      categoria: prod.categoria || prod.category || ""
+      imagen_url: prod.imagen_url || "",
+      descripcion: prod.descripcion || ""
     });
     setMostrarModal(true);
   };
@@ -65,23 +66,20 @@ export default function AdminPanel() {
     setFormProd({ ...formProd, [name]: value });
   };
 
-  // Guardar cambios e insertar (Sincronizado con Supabase y Frontend)
   const guardarProducto = async (e) => {
     e.preventDefault();
     
-    // Mapeo de datos usando los nombres reales de las columnas en tu Supabase
+    // 🔥 OBJETO EXACTO PARA SUPABASE 🔥
     const datosPlanta = {
       nombre: formProd.nombre, 
-      name: formProd.nombre, // Mantenemos ambos por si acaso, pero la clave es que coincida con tu esquema
+      categoria: formProd.categoria,
       precio: Number(formProd.precio),
-      price: Number(formProd.precio),
       stock: Number(formProd.stock),
-      categoria: formProd.categoria, // 👈 CORRECCIÓN PRINCIPAL PARA TU ERROR
-      category: formProd.categoria
+      imagen_url: formProd.imagen_url,
+      descripcion: formProd.descripcion
     };
 
     if (modoModal === "crear") {
-      // Guardar nuevo producto en Supabase
       const { data, error } = await supabase
         .from("products")
         .insert([datosPlanta])
@@ -90,12 +88,10 @@ export default function AdminPanel() {
       if (error) {
         alert("Error al guardar: " + error.message);
       } else {
-        // Actualiza el estado local para que se vea reflejado inmediatamente sin recargar
         setProductos([data[0], ...productos]);
         setMostrarModal(false);
       }
     } else {
-      // Actualizar producto existente en Supabase (Modificar)
       const { data, error } = await supabase
         .from("products")
         .update(datosPlanta)
@@ -105,14 +101,12 @@ export default function AdminPanel() {
       if (error) {
         alert("Error al actualizar: " + error.message);
       } else {
-        // Actualiza el estado local reemplazando los datos viejos por los nuevos
         setProductos(productos.map(p => p.id === idSeleccionado ? data[0] : p));
         setMostrarModal(false);
       }
     }
   };
 
-  // Función para eliminar un producto (Quitar)
   const eliminarProducto = async (id, nombre) => {
     if (confirm(`¿Estás seguro de que deseas eliminar "${nombre}" del catálogo?`)) {
       const { error } = await supabase.from("products").delete().eq("id", id);
@@ -124,7 +118,6 @@ export default function AdminPanel() {
     }
   };
 
-  // Cálculos dinámicos para la pestaña de Resumen
   const stockTotal = productos.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
   const bajoStock = productos.filter(p => (Number(p.stock) || 0) < 5).length;
 
@@ -142,7 +135,6 @@ export default function AdminPanel() {
       fontFamily: "system-ui, sans-serif" 
     }}>
       
-      {/* SIDEBAR ESTILO VITA */}
       <aside style={{ 
         width: "260px", 
         backgroundColor: "rgba(30, 61, 47, 0.9)", 
@@ -196,10 +188,8 @@ export default function AdminPanel() {
         </button>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
       <main style={{ flex: 1, padding: "40px", backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)", overflowY: "auto" }}>
         
-        {/* PESTAÑA 1: RESUMEN DE CONTROL */}
         {vistaActiva === "resumen" && (
           <div>
             <h1 style={{ margin: "0 0 10px 0", fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Métricas del Negocio</h1>
@@ -223,7 +213,6 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* PESTAÑA 2: INVENTARIO */}
         {vistaActiva === "inventario" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
@@ -249,7 +238,7 @@ export default function AdminPanel() {
                   <tr style={{ backgroundColor: "#f8faf9", color: "#1e3d2f", fontSize: "0.85rem", borderBottom: "1px solid #eee" }}>
                     <th style={{ padding: "20px" }}>ESPECIE</th>
                     <th style={{ padding: "20px" }}>PRECIO</th>
-                    <th style={{ padding: "20px" }}>STOCK DISPONIBLE</th>
+                    <th style={{ padding: "20px" }}>STOCK</th>
                     <th style={{ padding: "20px" }}>ESTADO</th>
                     <th style={{ padding: "20px", textAlign: "right" }}>GESTIÓN</th>
                   </tr>
@@ -259,16 +248,20 @@ export default function AdminPanel() {
                     <tr key={prod.id} style={{ borderBottom: "1px solid #f9f9f9", transition: "0.2s" }}>
                       <td style={{ padding: "18px 20px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                          <div style={{ fontSize: "1.2rem" }}>🌱</div>
+                          {prod.imagen_url ? (
+                            <img src={prod.imagen_url} alt={prod.nombre} style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "8px" }} />
+                          ) : (
+                            <div style={{ fontSize: "1.2rem", width: "40px", textAlign: "center" }}>🌱</div>
+                          )}
                           <div>
-                            <div style={{ fontWeight: "600", color: "#333" }}>{prod.nombre || prod.name}</div>
-                            <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.categoria || prod.category || "General"}</div>
+                            <div style={{ fontWeight: "600", color: "#333" }}>{prod.nombre}</div>
+                            <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.categoria || "General"}</div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "18px 20px", color: "#27ae60", fontWeight: "bold" }}>${prod.precio || prod.price}</td>
+                      <td style={{ padding: "18px 20px", color: "#27ae60", fontWeight: "bold" }}>${prod.precio}</td>
                       <td style={{ padding: "18px 20px", color: (prod.stock || 0) < 5 ? "#e74c3c" : "#555", fontWeight: (prod.stock || 0) < 5 ? "bold" : "normal" }}>
-                        {prod.stock || 0} unidades
+                        {prod.stock || 0} u.
                       </td>
                       <td style={{ padding: "18px 20px" }}>
                         <span style={{ 
@@ -288,7 +281,7 @@ export default function AdminPanel() {
                           Modificar
                         </span>
                         <span 
-                          onClick={() => eliminarProducto(prod.id, prod.nombre || prod.name)}
+                          onClick={() => eliminarProducto(prod.id, prod.nombre)}
                           style={{ cursor: "pointer", color: "#e74c3c", fontWeight: "500", textDecoration: "underline" }}
                         >
                           Quitar
@@ -302,7 +295,6 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* PESTAÑA 3: ÓRDENES DE COMPRA */}
         {vistaActiva === "ordenes" && (
           <div>
             <h1 style={{ margin: "0 0 10px 0", fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Registro de Órdenes</h1>
@@ -319,23 +311,34 @@ export default function AdminPanel() {
         )}
       </main>
 
-      {/* MODAL DINÁMICO (CREAR / EDITAR) */}
+      {/* MODAL CON TODOS LOS CAMPOS */}
       {mostrarModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(30, 61, 47, 0.6)", backdropFilter: "blur(5px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
-          <div style={{ backgroundColor: "white", padding: "40px", borderRadius: "20px", width: "100%", maxWidth: "450px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)" }}>
+          <div style={{ backgroundColor: "white", padding: "40px", borderRadius: "20px", width: "100%", maxWidth: "500px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" }}>
             <h2 style={{ marginTop: 0, marginBottom: "25px", color: "#1e3d2f", fontWeight: "300", textAlign: "center" }}>
               {modoModal === "crear" ? "Nueva Planta para el Catálogo" : "Modificar Datos de la Planta"}
             </h2>
             <form onSubmit={guardarProducto} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>NOMBRE DE LA PLANTA</label>
-                <input required type="text" name="nombre" value={formProd.nombre} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
+              <div style={{ display: "flex", gap: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 2 }}>
+                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>NOMBRE DE LA PLANTA</label>
+                  <input required type="text" name="nombre" value={formProd.nombre} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>CATEGORÍA</label>
+                  <input required type="text" name="categoria" value={formProd.categoria} onChange={manejarCambioInput} placeholder="Ej: Interior" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
+                </div>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>CATEGORÍA</label>
-                <input required type="text" name="categoria" value={formProd.categoria} onChange={manejarCambioInput} placeholder="Ej: Interior, Exterior..." style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
+                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>DESCRIPCIÓN</label>
+                <textarea required name="descripcion" value={formProd.descripcion} onChange={manejarCambioInput} rows="2" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none", resize: "none" }} />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>URL DE LA IMAGEN</label>
+                <input required type="text" name="imagen_url" value={formProd.imagen_url} onChange={manejarCambioInput} placeholder="Ej: /img/monstera.jpg" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", outline: "none" }} />
               </div>
 
               <div style={{ display: "flex", gap: "20px" }}>
@@ -349,7 +352,7 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "10px" }}>
                 <button type="button" onClick={() => setMostrarModal(false)} style={{ padding: "12px 25px", backgroundColor: "transparent", color: "#aaa", border: "none", cursor: "pointer", fontWeight: "bold" }}>CANCELAR</button>
                 <button type="submit" style={{ padding: "12px 30px", backgroundColor: "#1e3d2f", color: "white", border: "none", borderRadius: "30px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
                   {modoModal === "crear" ? "GUARDAR PLANTA" : "CONFIRMAR CAMBIOS"}
