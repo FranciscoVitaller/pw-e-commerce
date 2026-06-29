@@ -29,17 +29,26 @@ export default function AdminPanel() {
 
   const router = useRouter();
 
-  // Controlar el estado de la sesión del Admin
+  // 🔒 CONTROLADOR DE SESIÓN EXCLUSIVO PARA TU EMAIL
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSesion(session);
-      if (session) traerProductos();
-      else setCargando(false);
+      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
+        setSesion(session);
+        traerProductos();
+      } else {
+        setSesion(null);
+        setCargando(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSesion(session);
-      if (session) traerProductos();
+      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
+        setSesion(session);
+        traerProductos();
+      } else {
+        setSesion(null);
+        setCargando(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -56,10 +65,19 @@ export default function AdminPanel() {
     setCargando(false);
   };
 
+  // 🔒 LOGIN BLINDADO: Filtra el email antes de intentar ingresar
   const manejarLogin = async (e) => {
     e.preventDefault();
     setErrorAuth("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    const emailLimpio = email.trim().toLowerCase();
+    
+    if (emailLimpio !== "fvitaller@itba.edu.ar") {
+      setErrorAuth("Acceso denegado. No tienes permisos de administrador.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: emailLimpio, password });
     if (error) {
       setErrorAuth("Credenciales incorrectas o no autorizadas.");
     }
@@ -155,7 +173,7 @@ export default function AdminPanel() {
     return <div style={{ textAlign: "center", marginTop: "50px", color: "white" }}>Cargando Panel de Control... 🌿</div>;
   }
 
-  // 🔒 SI NO HAY SESIÓN, MUESTRA EL FORMULARIO DE LOGIN PROTECTOR
+  // 🔒 SI NO HAY SESIÓN O NO ES TU EMAIL, MUESTRA EL FORMULARIO DE LOGIN PROTECTOR
   if (!sesion) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "#1e3d2f", fontFamily: "system-ui, sans-serif" }}>
@@ -175,7 +193,7 @@ export default function AdminPanel() {
     );
   }
 
-  // 🔓 SI LA SESIÓN ES CORRECTA, MUESTRA EL PANEL COMPLETO
+  // 🔓 SI LA SESIÓN ES TUYA (fvitaller@itba.edu.ar), SE MUESTRA EL PANEL COMPLETO INTACTO
   return (
     <div style={{ 
       display: "flex", 
@@ -214,7 +232,6 @@ export default function AdminPanel() {
       </aside>
 
       <main style={{ flex: 1, padding: "40px", backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)", overflowY: "auto" }}>
-        {/* VISTAS */}
         {vistaActiva === "resumen" && (
           <div>
             <h1 style={{ margin: "0 0 10px 0", fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Métricas del Negocio</h1>
