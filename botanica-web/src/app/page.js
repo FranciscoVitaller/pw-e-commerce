@@ -5,6 +5,66 @@ import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 
+// 🌿 SUBCOMPONENTE DE TARJETA INDEPENDIENTE (Mantiene tus estilos exactos pero suma el zoom individual)
+function TarjetaProducto({ planta, agregarAlCarrito }) {
+  const [zoom, setZoom] = useState(false);
+
+  return (
+    <div 
+      style={{ 
+        backgroundColor: "white", 
+        padding: "15px", 
+        borderRadius: "12px", 
+        boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
+        display: "flex", 
+        flexDirection: "column", 
+        justifyContent: "space-between", 
+        transition: "transform 0.2s" 
+      }} 
+      onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
+      onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
+      onMouseEnter={() => setZoom(true)}
+      onMouseLeave={() => setZoom(false)}
+    >
+      <div>
+        {/* CONTENEDOR DE IMAGEN CON OVERFLOW HIDDEN */}
+        <div style={{ width: "100%", height: "220px", borderRadius: "8px", marginBottom: "15px", overflow: "hidden", position: "relative" }}>
+          <img 
+            // 🔥 Intenta leer 'imagen_url' (Admin), si no existe usa 'image_url' (catálogo base) o un repuesto seguro
+            src={planta.imagen_url || planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
+            alt={planta.name || planta.nombre}
+            style={{ 
+              width: "100%", 
+              height: "100%", 
+              objectFit: "cover", 
+              transition: "transform 0.5s ease-in-out",
+              // Aplica el zoom de forma individual cuando el mouse entra en esta tarjeta
+              transform: zoom ? "scale(1.12)" : "scale(1)"
+            }}
+          />
+        </div>
+        <h3 style={{ margin: "0 0 5px 0", color: "#1e3d2f", fontSize: "1.3rem" }}>{planta.name || planta.nombre}</h3>
+        <p style={{ color: "#7f8c8d", fontSize: "0.9rem", margin: "0 0 15px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          {planta.category || planta.categoria || "General"}
+        </p>
+      </div>
+      
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#27ae60" }}>${planta.price || planta.precio}</span>
+        <button 
+          onClick={() => agregarAlCarrito(planta)} 
+          style={{ backgroundColor: "#1e3d2f", color: "white", border: "none", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", transition: "background 0.3s" }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2ecc71"}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#1e3d2f"}
+        >
+          Sumar 🛒
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 🏠 TU COMPONENTE PRINCIPAL ORIGINAL COMPLETAMENTE INTACTO
 export default function Home() {
   const [plantas, setPlantas] = useState([]);
   const [usuario, setUsuario] = useState(null);
@@ -131,10 +191,8 @@ export default function Home() {
         zIndex: 100,
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
       }}>
-        {/* Espaciador izquierdo invisible para forzar el centrado matemático del título */}
         <div style={{ flex: 1 }}></div>
 
-        {/* TÍTULO CAMBIADO: Centrado, tipografía ultraligera, delicada y elegante */}
         <div style={{ flex: 2, textAlign: "center" }}>
           <h1 style={{ 
             margin: 0, 
@@ -147,7 +205,6 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* Bloque de usuario a la derecha */}
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "15px", justifyContent: "flex-end" }}>
           {usuario ? (
             <>
@@ -198,40 +255,17 @@ export default function Home() {
             </select>
           </div>
 
-          {/* GRILLA DE PRODUCTOS */}
+          {/* GRILLA DE PRODUCTOS - Llama a nuestra nueva Tarjeta con Zoom */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "25px" }}>
             {plantasFiltradas.length === 0 ? (
               <p style={{ color: "#666" }}>No se encontraron plantas con esos filtros.</p>
             ) : (
               plantasFiltradas.map((planta) => (
-                <div key={planta.id} style={{ backgroundColor: "white", padding: "15px", borderRadius: "12px", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "transform 0.2s" }} 
-                     onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
-                     onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}>
-                  
-                  <div>
-                    {/* IMAGEN CON EFECTO HOVER ORIGINAL */}
-                    <div style={{ width: "100%", height: "220px", borderRadius: "8px", marginBottom: "15px", overflow: "hidden", position: "relative" }}>
-                      <img 
-                        src={planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
-                        alt={planta.name || planta.nombre}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.4s ease-in-out" }}
-                        onMouseOver={(e) => e.currentTarget.src = planta.image_hover_url || "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&w=500&q=80"}
-                        onMouseOut={(e) => e.currentTarget.src = planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"}
-                      />
-                    </div>
-                    <h3 style={{ margin: "0 0 5px 0", color: "#1e3d2f", fontSize: "1.3rem" }}>{planta.name || planta.nombre}</h3>
-                    <p style={{ color: "#7f8c8d", fontSize: "0.9rem", margin: "0 0 15px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>{planta.category || planta.categoria || "General"}</p>
-                  </div>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#27ae60" }}>${planta.price || planta.precio}</span>
-                    <button onClick={() => agregarAlCarrito(planta)} style={{ backgroundColor: "#1e3d2f", color: "white", border: "none", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", transition: "background 0.3s" }}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2ecc71"}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#1e3d2f"}>
-                      Sumar 🛒
-                    </button>
-                  </div>
-                </div>
+                <TarjetaProducto 
+                  key={planta.id} 
+                  planta={planta} 
+                  agregarAlCarrito={agregarAlCarrito} 
+                />
               ))
             )}
           </div>
