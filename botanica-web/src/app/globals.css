@@ -1,4 +1,6 @@
-/* VARIABLES: Nueva paleta "Plantas Vita" */
+/* =========================================================
+   VARIABLES: Paleta "Plantas Vita"
+   ========================================================= */
 :root {
   --verde-oscuro: #3A5A40;   /* Verde bosque, serio y profundo */
   --verde-principal: #588157; /* Verde salvia, muy natural */
@@ -8,6 +10,9 @@
   --sombra: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* =========================================================
+   RESET Y BASE
+   ========================================================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -21,65 +26,314 @@ body {
   line-height: 1.6;
 }
 
-/* CONTENEDOR PRINCIPAL */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px 20px;
+/* =========================================================
+   ESTILOS ORIGINALES (Conservados por compatibilidad)
+   ========================================================= */
+.container { 
+  max-width: 1100px; 
+  margin: 0 auto; 
+  padding: 40px 20px; 
+}
+.card { 
+  background: var(--blanco); 
+  border-radius: 12px; 
+  padding: 20px; 
+  box-shadow: var(--sombra); 
+  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+}
+.card:hover { 
+  transform: translateY(-5px); 
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); 
+}
+.btn-primario { 
+  background-color: var(--verde-principal); 
+  color: white; 
+  border: none; 
+  padding: 12px; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  text-decoration: none; 
+  text-align: center; 
+  transition: background 0.3s; 
+}
+.btn-primario:hover { 
+  background-color: var(--verde-oscuro); 
+}
+.carrito-flotante { 
+  background: var(--verde-oscuro); 
+  color: white; 
+  padding: 20px; 
+  border-radius: 12px; 
+  margin-bottom: 30px; 
+  position: sticky; 
+  top: 10px; 
+  z-index: 100; 
+}
+.imagen-hover-suave { 
+  width: 100%; 
+  height: auto; 
+  aspect-ratio: 3/2; 
+  object-fit: cover; 
+  transition: opacity 0.5s ease-in-out; 
 }
 
-/* TARJETAS DE PRODUCTO */
-.card {
-  background: var(--blanco);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--sombra);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* =========================================================
+   NUEVOS ESTILOS PARA LA PÁGINA PRINCIPAL (page.js)
+   Integrados con las variables del proyecto
+   ========================================================= */
+.home-layout {
+  min-height: 100vh;
+  /* Fondo natural (conservando el estilo que habías elegido) */
+  background-image: url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-.card:hover {
-  transform: translateY(-5px); /* Efecto de que la tarjeta "flota" */
+.pantalla-carga {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.5rem;
+  color: var(--verde-oscuro);
+}
+
+/* --- HEADER --- */
+.header-principal {
+  background-color: rgba(58, 90, 64, 0.9); /* Basado en tu verde-oscuro */
+  backdrop-filter: blur(10px);
+  color: var(--blanco);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.header-vacio { flex: 1; }
+.header-logo { flex: 2; text-align: center; }
+.header-logo h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 200;
+  font-family: Georgia, serif;
+  letter-spacing: 3px;
+}
+.header-acciones {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: flex-end;
+}
+.saludo-usuario { font-size: 0.9rem; }
+.btn-salir {
+  background-color: transparent; 
+  color: var(--blanco); 
+  border: 1px solid var(--blanco);
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  transition: 0.3s;
+}
+.btn-salir:hover { 
+  background-color: var(--blanco); 
+  color: var(--verde-oscuro); 
+}
+.btn-login {
+  background-color: var(--verde-principal); 
+  color: var(--blanco); 
+  border: none;
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  transition: 0.3s;
+}
+.btn-login:hover { 
+  background-color: var(--verde-oscuro); 
+}
+
+/* --- MAIN CONTENEDOR --- */
+.main-contenedor {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  display: flex;
+  gap: 30px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+}
+
+.seccion-catalogo { flex: 3; }
+.seccion-catalogo h2 { color: var(--verde-oscuro); margin-top: 0; font-size: 2rem; }
+
+/* Filtros */
+.filtros-contenedor { display: flex; gap: 15px; margin-bottom: 30px; }
+.input-busqueda {
+  flex: 1; 
+  padding: 12px; 
+  border-radius: 8px; 
+  border: 1px solid #ccc;
+  font-size: 1rem; 
+  outline: none;
+}
+.select-categoria {
+  padding: 12px; 
+  border-radius: 8px; 
+  border: 1px solid #ccc;
+  font-size: 1rem; 
+  cursor: pointer; 
+  background-color: var(--blanco);
+}
+
+/* Grilla Productos */
+.grilla-plantas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+}
+.mensaje-vacio { color: #666; }
+
+/* --- TARJETA DE PRODUCTO --- */
+.tarjeta-producto {
+  background-color: var(--blanco); 
+  padding: 15px; 
+  border-radius: 12px;
+  box-shadow: var(--sombra); 
+  display: flex;
+  flex-direction: column; 
+  justify-content: space-between;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.tarjeta-producto:hover { 
+  transform: translateY(-5px); 
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* BOTONES PROFESIONALES */
-.btn-primario {
-  background-color: var(--verde-principal);
-  color: white;
-  border: none;
-  padding: 12px;
+.imagen-contenedor {
+  width: 100%; 
+  height: 220px; 
   border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  text-decoration: none;
-  text-align: center;
+  margin-bottom: 15px; 
+  overflow: hidden; 
+  position: relative;
+}
+.imagen-planta {
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover;
+  transition: transform 0.5s ease-in-out;
+}
+.tarjeta-producto:hover .imagen-planta { 
+  transform: scale(1.12); 
+}
+
+.titulo-planta { margin: 0 0 5px 0; color: var(--verde-oscuro); font-size: 1.3rem; }
+.categoria-planta {
+  color: #7f8c8d; font-size: 0.9rem; margin: 0 0 15px 0;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.acciones-planta { display: flex; justify-content: space-between; align-items: center; }
+.precio-planta { font-weight: bold; font-size: 1.4rem; color: var(--verde-principal); }
+.btn-sumar {
+  background-color: var(--verde-oscuro); 
+  color: var(--blanco); 
+  border: none; 
+  padding: 10px 15px;
+  border-radius: 8px; 
+  cursor: pointer; 
+  font-weight: bold; 
   transition: background 0.3s;
 }
+.btn-sumar:hover { background-color: var(--verde-principal); }
 
-.btn-primario:hover {
-  background-color: var(--verde-oscuro);
-}
-
-/* CARRITO (RESUMEN) */
-.carrito-flotante {
-  background: var(--verde-oscuro);
-  color: white;
-  padding: 20px;
+/* --- CARRITO ASIDE --- */
+.aside-carrito {
+  flex: 1; 
+  background-color: var(--blanco); 
+  padding: 25px; 
   border-radius: 12px;
-  margin-bottom: 30px;
-  position: sticky; /* Se queda pegado arriba al hacer scroll */
-  top: 10px;
-  z-index: 100;
+  box-shadow: var(--sombra); 
+  height: fit-content;
+  position: sticky; 
+  top: 100px; 
+  min-width: 280px;
 }
+.aside-carrito h2 { margin-top: 0; color: var(--verde-oscuro); border-bottom: 2px solid var(--gris-suave); padding-bottom: 15px; font-size: 1.5rem; }
+.carrito-vacio { color: #95a5a6; text-align: center; margin-top: 30px; padding: 20px 0; }
+.lista-carrito { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+.item-carrito { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding-bottom: 10px; }
+.item-nombre { font-weight: bold; color: #2c3e50; }
+.item-precio { color: #7f8c8d; font-size: 0.9rem; }
+.item-controles { display: flex; gap: 8px; align-items: center; }
+.btn-restar { padding: 5px 10px; cursor: pointer; background-color: var(--gris-suave); border: none; border-radius: 5px; font-weight: bold; color: #e74c3c; }
+.btn-sumar-pequeno { padding: 5px 10px; cursor: pointer; background-color: var(--gris-suave); border: none; border-radius: 5px; font-weight: bold; color: var(--verde-principal); }
+.carrito-total-contenedor { border-top: 2px solid var(--gris-suave); padding-top: 20px; }
+.carrito-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.3rem; margin-bottom: 20px; }
+.total-precio { color: var(--verde-principal); }
+.btn-pagar { width: 100%; background-color: var(--verde-principal); color: var(--blanco); border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+.btn-pagar:hover { background-color: var(--verde-oscuro); }
+.btn-pagar.procesando { background-color: #95a5a6; cursor: wait; }
+.btn-vaciar { width: 100%; background-color: transparent; color: #95a5a6; border: none; margin-top: 15px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; }
 
-/* --- ESTILOS DE IMAGEN CON HOVER SUAVE (UI/UX) --- */
-.imagen-hover-suave {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3/2; /* Mantenemos una proporción fija para que la tarjeta no salte */
-  object-fit: cover; /* Recorta la imagen para que encaje perfectamente */
-  transition: opacity 0.5s ease-in-out; /* Transición suave de 0.5 segundos */
+/* --- FOOTER --- */
+.footer-principal {
+  background-color: var(--verde-oscuro); 
+  color: var(--blanco); 
+  text-align: center;
+  padding: 20px; 
+  margin-top: auto;
+}
+.footer-principal p { margin: 0; }
+.footer-subtitulo { margin-top: 5px; font-size: 0.8rem; color: var(--verde-claro); }
+
+/* =========================================================
+   RESPONSIVIDAD (MOBILE FIRST & MEDIA QUERIES)
+   Punto clave para la corrección del profesor
+   ========================================================= */
+@media screen and (max-width: 768px) {
+  
+  /* El header se apila en vertical en celulares */
+  .header-principal {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  .header-acciones {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* El contenedor principal deja de estar lado a lado */
+  .main-contenedor {
+    flex-direction: column;
+    margin: 20px auto;
+    padding: 15px;
+  }
+
+  /* Los filtros ocupan todo el ancho */
+  .filtros-contenedor {
+    flex-direction: column;
+  }
+
+  /* El carrito pasa abajo y deja de flotar para no tapar los productos */
+  .aside-carrito {
+    position: static;
+    margin-top: 20px;
+    min-width: 100%;
+  }
 }
