@@ -5,12 +5,12 @@ import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 
-// 🌿 SUBCOMPONENTE DE TARJETA INDEPENDIENTE (Mantiene tus estilos exactos pero suma el zoom individual)
+// 🌿 SUBCOMPONENTE (Ahora usa <article> en vez de <div>)
 function TarjetaProducto({ planta, agregarAlCarrito }) {
   const [zoom, setZoom] = useState(false);
 
   return (
-    <div 
+    <article 
       style={{ 
         backgroundColor: "white", 
         padding: "15px", 
@@ -27,10 +27,8 @@ function TarjetaProducto({ planta, agregarAlCarrito }) {
       onMouseLeave={() => setZoom(false)}
     >
       <div>
-        {/* CONTENEDOR DE IMAGEN CON OVERFLOW HIDDEN */}
         <div style={{ width: "100%", height: "220px", borderRadius: "8px", marginBottom: "15px", overflow: "hidden", position: "relative" }}>
           <img 
-            // 🔥 Intenta leer 'imagen_url' (Admin), si no existe usa 'image_url' (catálogo base) o un repuesto seguro
             src={planta.imagen_url || planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
             alt={planta.name || planta.nombre}
             style={{ 
@@ -38,7 +36,6 @@ function TarjetaProducto({ planta, agregarAlCarrito }) {
               height: "100%", 
               objectFit: "cover", 
               transition: "transform 0.5s ease-in-out",
-              // Aplica el zoom de forma individual cuando el mouse entra en esta tarjeta
               transform: zoom ? "scale(1.12)" : "scale(1)"
             }}
           />
@@ -60,18 +57,17 @@ function TarjetaProducto({ planta, agregarAlCarrito }) {
           Sumar 🛒
         </button>
       </div>
-    </div>
+    </article>
   );
 }
 
-// 🏠 TU COMPONENTE PRINCIPAL ORIGINAL COMPLETAMENTE INTACTO
+// 🏠 COMPONENTE PRINCIPAL
 export default function Home() {
   const [plantas, setPlantas] = useState([]);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [pagando, setPagando] = useState(false);
   
-  // Estados para el buscador y filtro
   const [busqueda, setBusqueda] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   
@@ -148,7 +144,6 @@ export default function Home() {
     setPagando(false);
   };
 
-  // Lógica de filtrado y búsqueda
   const plantasFiltradas = plantas.filter((planta) => {
     const nombrePlanta = (planta.name || planta.nombre || "").toLowerCase();
     const categoriaPlanta = (planta.category || planta.categoria || "General");
@@ -177,8 +172,8 @@ export default function Home() {
       flexDirection: "column"
     }}>
       
-      {/* HEADER / NAVBAR CON BLUR */}
-      <div style={{ 
+      {/* HEADER: Reemplazamos el div por <header> */}
+      <header style={{ 
         backgroundColor: "rgba(30, 61, 47, 0.8)", 
         backdropFilter: "blur(10px)",
         color: "white", 
@@ -194,13 +189,7 @@ export default function Home() {
         <div style={{ flex: 1 }}></div>
 
         <div style={{ flex: 2, textAlign: "center" }}>
-          <h1 style={{ 
-            margin: 0, 
-            fontSize: "2rem", 
-            fontWeight: "200", 
-            fontFamily: "Georgia, serif", 
-            letterSpacing: "3px" 
-          }}>
+          <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: "200", fontFamily: "Georgia, serif", letterSpacing: "3px" }}>
             🌿 Plantas Vita
           </h1>
         </div>
@@ -215,10 +204,10 @@ export default function Home() {
             <button onClick={() => router.push("/login")} style={{ backgroundColor: "#2ecc71", color: "white", border: "none", padding: "8px 15px", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>Iniciar Sesión</button>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* CONTENIDO PRINCIPAL CON BLUR */}
-      <div style={{ 
+      {/* MAIN: El contenedor principal ahora es un <main> en vez de un <div> */}
+      <main style={{ 
         flex: 1,
         maxWidth: "1200px", 
         margin: "40px auto", 
@@ -231,11 +220,10 @@ export default function Home() {
         boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
       }}>
         
-        {/* COLUMNA IZQUIERDA: CATÁLOGO */}
-        <div style={{ flex: 3 }}>
+        {/* SECTION: La columna del catálogo ahora es un <section> */}
+        <section style={{ flex: 3 }}>
           <h2 style={{ color: "#1e3d2f", marginTop: 0, fontSize: "2rem" }}>Nuestro Catálogo</h2>
           
-          {/* BARRA DE BÚSQUEDA Y FILTRO */}
           <div style={{ display: "flex", gap: "15px", marginBottom: "30px" }}>
             <input 
               type="text" 
@@ -255,7 +243,6 @@ export default function Home() {
             </select>
           </div>
 
-          {/* GRILLA DE PRODUCTOS - Llama a nuestra nueva Tarjeta con Zoom */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "25px" }}>
             {plantasFiltradas.length === 0 ? (
               <p style={{ color: "#666" }}>No se encontraron plantas con esos filtros.</p>
@@ -269,10 +256,10 @@ export default function Home() {
               ))
             )}
           </div>
-        </div>
+        </section>
 
-        {/* COLUMNA DERECHA: CARRITO */}
-        <div style={{ flex: 1, backgroundColor: "white", padding: "25px", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", height: "fit-content", position: "sticky", top: "100px" }}>
+        {/* ASIDE: La columna del carrito ahora es un <aside> (contenido lateral) */}
+        <aside style={{ flex: 1, backgroundColor: "white", padding: "25px", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", height: "fit-content", position: "sticky", top: "100px" }}>
           <h2 style={{ marginTop: "0", color: "#1e3d2f", borderBottom: "2px solid #ecf0f1", paddingBottom: "15px", fontSize: "1.5rem" }}>Tu Carrito ({cantidadTotal})</h2>
           
           {carrito.length === 0 ? (
@@ -306,10 +293,10 @@ export default function Home() {
               </div>
             </>
           )}
-        </div>
-      </div>
+        </aside>
+      </main>
 
-      {/* FOOTER */}
+      {/* FOOTER: Ya lo tenías bien configurado, lo dejamos tal cual */}
       <footer style={{ backgroundColor: "#152b21", color: "#bdc3c7", textAlign: "center", padding: "20px", marginTop: "auto" }}>
         <p style={{ margin: 0 }}>© 2026 Plantas Vita - Todos los derechos reservados.</p>
         <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem" }}>Proyecto Integrador - E-Commerce B2C</p>
