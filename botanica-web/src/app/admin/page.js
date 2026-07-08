@@ -29,31 +29,6 @@ export default function AdminPanel() {
 
   const router = useRouter();
 
-  // 🔒 CONTROLADOR DE SESIÓN EXCLUSIVO PARA TU EMAIL
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
-        setSesion(session);
-        traerProductos();
-      } else {
-        setSesion(null);
-        setCargando(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
-        setSesion(session);
-        traerProductos();
-      } else {
-        setSesion(null);
-        setCargando(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const traerProductos = async () => {
     setCargando(true);
     const { data, error } = await supabase.from("products").select("*").order('id', { ascending: false });
@@ -82,6 +57,30 @@ export default function AdminPanel() {
       setErrorAuth("Credenciales incorrectas o no autorizadas.");
     }
   };
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
+        setSesion(session);
+        traerProductos();
+      } else {
+        setSesion(null);
+        setCargando(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
+        setSesion(session);
+        traerProductos();
+      } else {
+        setSesion(null);
+        setCargando(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const manejarLogout = async () => {
     await supabase.auth.signOut();

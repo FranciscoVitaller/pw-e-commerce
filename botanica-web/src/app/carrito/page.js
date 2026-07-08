@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
+import { formatearPrecio, obtenerNombreProducto, obtenerPrecioProducto } from '../../lib/productos';
 
 export default function CarritoPage() {
   const { carrito, agregarAlCarrito, restarDelCarrito, vaciarCarrito, precioTotal } = useCart();
 
   const finalizarCompra = () => {
-    alert(`Gracias por elegir Plantas Vita 🌿\nTu pedido por $${precioTotal} está siendo procesado.`);
+    alert(`Gracias por elegir Plantas Vita 🌿\nTu pedido por ${formatearPrecio(precioTotal)} está siendo procesado.`);
     vaciarCarrito();
   };
 
@@ -33,8 +34,8 @@ export default function CarritoPage() {
             {carrito.map((item) => (
               <li key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', padding: '20px 0' }}>
                 <div style={{ flex: '1' }}>
-                  <h3 style={{ fontSize: '1.2rem', color: 'var(--verde-oscuro)' }}>{item.nombre}</h3>
-                  <p style={{ color: '#888', fontSize: '0.9rem' }}>Precio unitario: ${item.precio}</p>
+                  <h3 style={{ fontSize: '1.2rem', color: 'var(--verde-oscuro)' }}>{obtenerNombreProducto(item)}</h3>
+                  <p style={{ color: '#888', fontSize: '0.9rem' }}>Precio unitario: {formatearPrecio(obtenerPrecioProducto(item))}</p>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', backgroundColor: '#f9f9f9', padding: '8px 15px', borderRadius: '30px' }}>
@@ -44,7 +45,7 @@ export default function CarritoPage() {
                 </div>
 
                 <div style={{ width: '120px', textAlign: 'right', fontWeight: 'bold', fontSize: '1.3rem', color: 'var(--verde-oscuro)' }}>
-                  ${item.precio * item.cantidad}
+                  {formatearPrecio(obtenerPrecioProducto(item) * item.cantidad)}
                 </div>
               </li>
             ))}
@@ -53,7 +54,7 @@ export default function CarritoPage() {
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '2px solid var(--verde-claro)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '20px' }}>
             <div style={{ textAlign: 'right' }}>
               <p style={{ color: '#666', marginBottom: '5px' }}>Total de la compra:</p>
-              <h2 style={{ fontSize: '2.5rem', color: 'var(--verde-oscuro)', margin: 0 }}>${precioTotal}</h2>
+              <h2 style={{ fontSize: '2.5rem', color: 'var(--verde-oscuro)', margin: 0 }}>{formatearPrecio(precioTotal)}</h2>
             </div>
             
             <div style={{ display: 'flex', gap: '15px' }}>

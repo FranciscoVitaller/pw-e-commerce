@@ -10,35 +10,33 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
+import { normalizarProducto, formatearPrecio, obtenerNombreProducto, obtenerCategoriaProducto, obtenerPrecioProducto, obtenerImagenProducto } from "../lib/productos";
 
 /**
  * COMPONENTE: TarjetaProducto
  * Renderiza la información individual de una planta y el botón para agregar al carrito.
  */
 function TarjetaProducto({ planta, agregarAlCarrito }) {
-  // Nota: Se eliminó el estado "zoom" y los eventos onMouseOver porque 
-  // esas animaciones ahora se manejan de forma nativa y optimizada desde el CSS.
+  const producto = normalizarProducto(planta);
 
   return (
     <article className="tarjeta-producto">
       <div>
         <div className="imagen-contenedor">
           <img 
-            src={planta.imagen_url || planta.image_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
-            alt={planta.name || planta.nombre}
+            src={obtenerImagenProducto(producto) || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
+            alt={obtenerNombreProducto(producto)}
             className="imagen-planta"
           />
         </div>
-        <h3 className="titulo-planta">{planta.name || planta.nombre}</h3>
-        <p className="categoria-planta">
-          {planta.category || planta.categoria || "General"}
-        </p>
+        <h3 className="titulo-planta">{obtenerNombreProducto(producto)}</h3>
+        <p className="categoria-planta">{obtenerCategoriaProducto(producto)}</p>
       </div>
       
       <div className="acciones-planta">
-        <span className="precio-planta">${planta.price || planta.precio}</span>
+        <span className="precio-planta">{formatearPrecio(obtenerPrecioProducto(producto))}</span>
         <button 
-          onClick={() => agregarAlCarrito(planta)} 
+          onClick={() => agregarAlCarrito(producto)} 
           className="btn-sumar"
         >
           Sumar 🛒
@@ -76,7 +74,7 @@ export default function Home() {
       if (error) {
         console.error("Error al traer plantas:", error.message);
       } else {
-        setPlantas(data);
+        setPlantas(data.map(normalizarProducto));
       }
     };
 
@@ -147,8 +145,9 @@ export default function Home() {
 
   // Filtrado reactivo de plantas según búsqueda y categoría
   const plantasFiltradas = plantas.filter((planta) => {
-    const nombrePlanta = (planta.name || planta.nombre || "").toLowerCase();
-    const categoriaPlanta = (planta.category || planta.categoria || "General");
+    const producto = normalizarProducto(planta);
+    const nombrePlanta = obtenerNombreProducto(producto).toLowerCase();
+    const categoriaPlanta = obtenerCategoriaProducto(producto);
     
     const coincideBusqueda = nombrePlanta.includes(busqueda.toLowerCase());
     const coincideCategoria = categoriaFiltro === "Todas" || categoriaPlanta === categoriaFiltro;
@@ -157,7 +156,7 @@ export default function Home() {
   });
 
   // Extracción de categorías únicas para el select
-  const categoriasUnicas = ["Todas", ...new Set(plantas.map(p => p.category || p.categoria || "General"))];
+  const categoriasUnicas = ["Todas", ...new Set(plantas.map((p) => obtenerCategoriaProducto(p)))];
 
   if (cargando) {
     return <div className="pantalla-carga">Cargando Plantas Vita... 🌿</div>;
@@ -235,8 +234,8 @@ export default function Home() {
                 {carrito.map((item) => (
                   <div key={item.id} className="item-carrito">
                     <div>
-                      <div className="item-nombre">{item.name || item.nombre}</div>
-                      <div className="item-precio">{item.cantidad} x ${item.price || item.precio}</div>
+                      <div className="item-nombre">{obtenerNombreProducto(item)}</div>
+                      <div className="item-precio">{item.cantidad} x {formatearPrecio(obtenerPrecioProducto(item))}</div>
                     </div>
                     <div className="item-controles">
                       <button onClick={() => restarDelCarrito(item.id)} className="btn-restar">-</button>
@@ -249,7 +248,7 @@ export default function Home() {
               <div className="carrito-total-contenedor">
                 <div className="carrito-total">
                   <span>Total:</span>
-                  <span className="total-precio">${precioTotal}</span>
+                  <span className="total-precio">{formatearPrecio(precioTotal)}</span>
                 </div>
                 <button onClick={manejarPago} disabled={pagando} className={`btn-pagar ${pagando ? 'procesando' : ''}`}>
                   {pagando ? "Procesando..." : "Finalizar Compra 💳"}
