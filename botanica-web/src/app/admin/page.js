@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -41,15 +42,19 @@ export default function AdminPanel() {
   };
 
   useEffect(() => {
-    if (!supabase) {
-      setCargando(false);
-      return;
-    }
+    let activo = true;
 
     const verificarSesion = async () => {
+      if (!supabase) {
+        if (activo) setCargando(false);
+        return;
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      if (!activo) return;
 
       if (session && session.user?.email === "fvitaller@itba.edu.ar") {
         setSesion(session);
@@ -65,6 +70,7 @@ export default function AdminPanel() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!activo) return;
       if (session && session.user?.email === "fvitaller@itba.edu.ar") {
         setSesion(session);
         traerProductos();
@@ -74,7 +80,10 @@ export default function AdminPanel() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      activo = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const manejarLogin = async (e) => {
