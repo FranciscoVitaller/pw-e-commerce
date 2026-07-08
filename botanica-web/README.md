@@ -1,25 +1,46 @@
-# 🌿 E-Commerce Botánico - Entrega Final (Semana 16)
+# 🌿 Plantas Vita - E-Commerce
 
-Este proyecto es una plataforma funcional de comercio electrónico dedicada a la venta de plantas y artículos botánicos. Está desarrollada con un enfoque moderno utilizando **Next.js** para el frontend y backend, **Supabase** como base de datos relacional y **Mercado Pago** como pasarela de procesamiento de pagos internacional.
+Sitio web oficial de **Plantas Vita**, un e-commerce dedicado a la venta de plantas online para conectar a las personas con la naturaleza.
 
----
+## 💻 Tecnologías (Stack)
 
-## 💼 1. Modelo de Negocio (B2C)
+| Capa | Elección |
+| Framework | Next.js (App Router) |
+| Lenguaje | JavaScript |
+| Estilos | CSS Puro (Variables globales, Mobile First) |
+| Base de Datos | Supabase (PostgreSQL + Autenticación) |
+| Pagos | Mercado Pago (API de Checkout y Webhooks) |
+| Estado | React Context API |
 
-El proyecto adopta un modelo de negocio **B2C (Business-to-Consumer)** de venta directa.
-* **Propuesta de Valor:** Ofrecer una experiencia digital fluida, rápida y segura para la adquisición de plantas, eliminando la necesidad de traslado físico a un vivero.
-* **Fuentes de Ingresos:** Modelo transaccional directo basado en el margen de ganancia por cada artículo botánico vendido a través de la plataforma.
-* **Ventaja Operativa:** Control automático de inventario en tiempo real acoplado al flujo de pagos, evitando pérdidas por sobreventa y reduciendo la intervención manual.
+## 🌿 Ramas del Proyecto (Branches)
 
----
+| Rama | Propósito |
+| `main` | Producción — la versión final, estable y visible para los usuarios. |
 
-## 🏗️ 2. Arquitectura de Software (C4 Model)
+## 🚀 Desarrollo Local
 
-Siguiendo los lineamientos de **C4 Model**, se detalla la estructura del sistema en sus niveles de Contexto y Contenedor.
+Para correr este proyecto en tu propia computadora, sigue estos pasos:
 
-### Nivel 1: Contexto del Sistema
-```mermaid
-graph TD
-    Usuario[👤 Cliente / Comprador] -->|Navega y compra| Tienda[🛒 Sistema E-Commerce]
-    Tienda -->|Notifica pagos aprobados/rechazados| MP[💳 Mercado Pago Gateway]
-    Tienda -->|Consulta y persiste datos| Supabase[(🗄️ Supabase DB)]
+```bash
+cp .env.example .env.local   # Completar con las credenciales de Supabase y Mercado Pago
+npm install
+npm run dev                  # El proyecto abrirá en http://localhost:3000
+
+📂 Estructura del Proyecto
+src/
+├── app/
+│   ├── admin/            # Panel de control protegido para administradores
+│   ├── api/              # Endpoints del backend (checkout y webhooks de MP)
+│   ├── carrito/          # Resumen del carrito de compras
+│   ├── checkout/         # Interfaz para finalizar la compra
+│   ├── login/            # Pantalla de inicio de sesión
+│   ├── producto/[id]/    # Vista detallada y dinámica de cada planta
+│   ├── globals.css       # Hoja de estilos principal y paleta de colores
+│   ├── layout.js         # Layout raíz (fuentes de Google y metadatos)
+│   └── page.js           # Home page y catálogo principal de productos
+│
+├── context/
+│   └── CartContext.js    # Lógica global para manejar los items del carrito
+│
+└── lib/
+    └── supabase.js       # Configuración y cliente de conexión a Supabase
