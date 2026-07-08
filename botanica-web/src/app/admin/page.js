@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase"; 
 import { useRouter } from "next/navigation";
@@ -280,7 +281,7 @@ export default function AdminPanel() {
                     <tr key={prod.id} style={{ borderBottom: "1px solid #f9f9f9" }}>
                       <td style={{ padding: "18px 20px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                          {prod.imagen_url ? <img src={prod.imagen_url} alt={prod.nombre} style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "8px" }} /> : <div style={{ fontSize: "1.2rem", width: "40px", textAlign: "center" }}>🌱</div>}
+                          {prod.imagen_url ? <Image src={prod.imagen_url} alt={prod.nombre} width={40} height={40} style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "8px" }} unoptimized /> : <div style={{ fontSize: "1.2rem", width: "40px", textAlign: "center" }}>🌱</div>}
                           <div>
                             <div style={{ fontWeight: "600", color: "#333" }}>{prod.nombre}</div>
                             <div style={{ color: "#888", fontSize: "0.75rem", textTransform: "uppercase" }}>{prod.categoria || "General"}</div>

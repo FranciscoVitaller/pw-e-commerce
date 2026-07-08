@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
@@ -25,10 +26,13 @@ function TarjetaProducto({ planta, agregarAlCarrito }) {
     <article className="tarjeta-producto">
       <Link href={`/producto/${planta.id}`} className="tarjeta-producto-link">
         <div className="imagen-contenedor">
-          <img
+          <Image
             src={planta.imagen_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"}
             alt={planta.nombre}
             className="imagen-planta"
+            width={500}
+            height={500}
+            unoptimized
           />
         </div>
         <h3 className="titulo-planta">{planta.nombre}</h3>
