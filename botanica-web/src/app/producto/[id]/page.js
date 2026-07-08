@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { useCart } from '../../../context/CartContext';
-<<<<<<< HEAD
-import { construirProductoParaCarrito, formatearPrecio, normalizarProducto, obtenerCategoriaProducto, obtenerDescripcionProducto, obtenerDificultadProducto, obtenerNombreProducto, obtenerPrecioProducto } from '../../../lib/productos';
-=======
-import { supabase } from '../../../lib/supabase';
->>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useCart } from "../../../context/CartContext";
+import { supabase } from "../../../lib/supabase";
+import {
+  construirProductoParaCarrito,
+  formatearPrecio,
+  normalizarProducto,
+  obtenerCategoriaProducto,
+  obtenerDescripcionProducto,
+  obtenerDificultadProducto,
+  obtenerNombreProducto,
+  obtenerPrecioProducto,
+} from "../../../lib/productos";
 
-/**
- * Componente de Vista Detallada de Producto.
- * Obtiene y renderiza dinámicamente la información de una planta basándose en el ID de la URL,
- * leyendo directamente de la tabla "products" de Supabase (el mismo origen que usa el catálogo
- * y el panel de administración) para que siempre refleje el estado real del inventario.
- */
 export default function DetalleProducto() {
   const params = useParams();
-  const idProducto = params.id;
+  const idProducto = params?.id;
   const { agregarAlCarrito } = useCart();
 
   const [planta, setPlanta] = useState(null);
@@ -26,87 +26,108 @@ export default function DetalleProducto() {
 
   useEffect(() => {
     const obtenerDetalle = async () => {
-<<<<<<< HEAD
-      try {
-        const respuesta = await fetch('/productos.json');
-        const datos = await respuesta.json();
-        const plantaEncontrada = datos.find((item) => item.id.toString() === idProducto);
-        
-        setPlanta(plantaEncontrada ? normalizarProducto(plantaEncontrada) : null);
+      if (!supabase || !idProducto) {
+        setPlanta(null);
         setCargando(false);
-      } catch (error) {
-        console.error("Error crítico al cargar el catálogo:", error);
-        setCargando(false);
-=======
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", idProducto)
-        .single();
-
-      if (error) {
-        console.error("Error al traer el producto:", error.message);
->>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
+        return;
       }
-      setPlanta(data);
-      setCargando(false);
+
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", idProducto)
+          .maybeSingle();
+
+        if (error) throw error;
+        setPlanta(data ? normalizarProducto(data) : null);
+      } catch (error) {
+        console.error("Error al traer el producto:", error);
+        setPlanta(null);
+      } finally {
+        setCargando(false);
+      }
     };
+
     obtenerDetalle();
   }, [idProducto]);
 
-  // Manejo de estados de carga y error (Early returns)
-  if (cargando) return <main className="container"><p>Cargando información botánica...</p></main>;
-  if (!planta) return <main className="container"><p>Lo sentimos, no encontramos esa variedad en nuestro catálogo.</p></main>;
+  if (cargando) {
+    return (
+      <main className="container">
+        <p>Cargando información botánica...</p>
+      </main>
+    );
+  }
+
+  if (!planta) {
+    return (
+      <main className="container">
+        <p>Lo sentimos, no encontramos esa variedad en nuestro catálogo.</p>
+      </main>
+    );
+  }
 
   return (
     <main className="container">
-      {/* Encabezado local de la vista del producto */}
-      <header style={{ marginBottom: '30px' }}>
-        <Link href="/" style={{ color: 'var(--verde-principal)', textDecoration: 'none', fontWeight: 'bold' }}>
+      <header style={{ marginBottom: "30px" }}>
+        <Link href="/" style={{ color: "var(--verde-principal)", textDecoration: "none", fontWeight: "bold" }}>
           ← Volver al catálogo
         </Link>
       </header>
 
-      <article className="card producto-detalle" style={{ maxWidth: '900px', margin: '0 auto', padding: '50px', backgroundColor: 'white' }}>
-        <div style={{ borderLeft: '5px solid var(--verde-principal)', paddingLeft: '25px' }}>
-          <h1 style={{ color: 'var(--verde-oscuro)', fontSize: '3rem', margin: 0 }}>
+      <article
+        className="card producto-detalle"
+        style={{ maxWidth: "900px", margin: "0 auto", padding: "50px", backgroundColor: "white" }}
+      >
+        <div style={{ borderLeft: "5px solid var(--verde-principal)", paddingLeft: "25px" }}>
+          <h1 style={{ color: "var(--verde-oscuro)", fontSize: "3rem", margin: 0 }}>
             {obtenerNombreProducto(planta)}
           </h1>
-          <p style={{ color: 'var(--verde-principal)', fontWeight: 'bold', textTransform: 'uppercase', marginTop: '10px' }}>
+          <p style={{ color: "var(--verde-principal)", fontWeight: "bold", textTransform: "uppercase", marginTop: "10px" }}>
             Variedad de {obtenerCategoriaProducto(planta)}
           </p>
         </div>
-        
-        <div style={{ margin: '40px 0', fontSize: '1.2rem', color: '#444', lineHeight: '1.8' }}>
-<<<<<<< HEAD
+
+        <div style={{ margin: "40px 0", fontSize: "1.2rem", color: "#444", lineHeight: "1.8" }}>
           <p>{obtenerDescripcionProducto(planta)}</p>
-          <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-             <span style={{ backgroundColor: 'var(--verde-claro)', padding: '5px 15px', borderRadius: '15px', fontSize: '0.9rem', color: 'var(--verde-oscuro)' }}>
-               Cuidado: {obtenerDificultadProducto(planta)}
-             </span>
-=======
-          <p>{planta.descripcion}</p>
-          <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {planta.dificultad && (
-              <span style={{ backgroundColor: 'var(--verde-claro)', padding: '5px 15px', borderRadius: '15px', fontSize: '0.9rem', color: 'var(--verde-oscuro)' }}>
-                Cuidado: {planta.dificultad}
-              </span>
-            )}
-            <span style={{ backgroundColor: 'var(--verde-claro)', padding: '5px 15px', borderRadius: '15px', fontSize: '0.9rem', color: 'var(--verde-oscuro)' }}>
-              {Number(planta.stock) > 0 ? `Stock disponible: ${planta.stock}` : 'Sin stock'}
+          <div style={{ marginTop: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <span
+              style={{
+                backgroundColor: "var(--verde-claro)",
+                padding: "5px 15px",
+                borderRadius: "15px",
+                fontSize: "0.9rem",
+                color: "var(--verde-oscuro)",
+              }}
+            >
+              Cuidado: {obtenerDificultadProducto(planta)}
             </span>
->>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
+            <span
+              style={{
+                backgroundColor: "var(--verde-claro)",
+                padding: "5px 15px",
+                borderRadius: "15px",
+                fontSize: "0.9rem",
+                color: "var(--verde-oscuro)",
+              }}
+            >
+              {Number(planta.stock) > 0 ? `Stock disponible: ${planta.stock}` : "Sin stock"}
+            </span>
           </div>
         </div>
 
-        <div className="producto-precio-acciones" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #eee', paddingTop: '30px' }}>
-          <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--verde-oscuro)' }}>
+        <div
+          className="producto-precio-acciones"
+          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #eee", paddingTop: "30px" }}
+        >
+          <span style={{ fontSize: "2.5rem", fontWeight: "bold", color: "var(--verde-oscuro)" }}>
             {formatearPrecio(obtenerPrecioProducto(planta))}
           </span>
 
           <button
             className="btn-primario"
-            style={{ padding: '18px 45px', fontSize: '1.1rem' }}
+            style={{ padding: "18px 45px", fontSize: "1.1rem" }}
             disabled={Number(planta.stock) <= 0}
             onClick={() => {
               agregarAlCarrito(construirProductoParaCarrito(planta));
@@ -118,8 +139,7 @@ export default function DetalleProducto() {
         </div>
       </article>
 
-      {/* Pie de página local de la vista del producto */}
-      <footer style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
+      <footer style={{ textAlign: "center", marginTop: "50px", color: "#888" }}>
         <p>Plantas Vita - Calidad Botánica Superior</p>
       </footer>
     </main>

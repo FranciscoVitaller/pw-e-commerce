@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase"; 
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabase";
 
 export default function AdminPanel() {
   const [sesion, setSesion] = useState(null);
@@ -13,26 +12,26 @@ export default function AdminPanel() {
 
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  
+
   const [vistaActiva, setVistaActiva] = useState("inventario");
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [modoModal, setModoModal] = useState("crear"); 
+  const [modoModal, setModoModal] = useState("crear");
   const [idSeleccionado, setIdSeleccionado] = useState(null);
-  
+
   const [formProd, setFormProd] = useState({
     nombre: "",
     categoria: "",
     precio: "",
     stock: "",
     imagen_url: "",
-    descripcion: ""
+    descripcion: "",
   });
 
   const router = useRouter();
 
   const traerProductos = async () => {
     setCargando(true);
-    const { data, error } = await supabase.from("products").select("*").order('id', { ascending: false });
+    const { data, error } = await supabase.from("products").select("*").order("id", { ascending: false });
     if (error) {
       console.error("Error al traer productos:", error);
     } else {
@@ -41,25 +40,31 @@ export default function AdminPanel() {
     setCargando(false);
   };
 
-<<<<<<< HEAD
-=======
-  // 🔒 CONTROLADOR DE SESIÓN EXCLUSIVO PARA TU EMAIL
   useEffect(() => {
     if (!supabase) {
+      setCargando(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const verificarSesion = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (session && session.user?.email === "fvitaller@itba.edu.ar") {
         setSesion(session);
-        traerProductos();
+        await traerProductos();
       } else {
         setSesion(null);
         setCargando(false);
       }
-    });
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    verificarSesion();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session && session.user?.email === "fvitaller@itba.edu.ar") {
         setSesion(session);
         traerProductos();
@@ -72,14 +77,12 @@ export default function AdminPanel() {
     return () => subscription.unsubscribe();
   }, []);
 
->>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
-  // 🔒 LOGIN BLINDADO: Filtra el email antes de intentar ingresar
   const manejarLogin = async (e) => {
     e.preventDefault();
     setErrorAuth("");
 
     const emailLimpio = email.trim().toLowerCase();
-    
+
     if (emailLimpio !== "fvitaller@itba.edu.ar") {
       setErrorAuth("Acceso denegado. No tienes permisos de administrador.");
       return;
@@ -90,30 +93,6 @@ export default function AdminPanel() {
       setErrorAuth("Credenciales incorrectas o no autorizadas.");
     }
   };
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
-        setSesion(session);
-        traerProductos();
-      } else {
-        setSesion(null);
-        setCargando(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && session.user?.email === "fvitaller@itba.edu.ar") {
-        setSesion(session);
-        traerProductos();
-      } else {
-        setSesion(null);
-        setCargando(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const manejarLogout = async () => {
     await supabase.auth.signOut();
@@ -137,7 +116,7 @@ export default function AdminPanel() {
       precio: prod.precio || "",
       stock: prod.stock || 0,
       imagen_url: prod.imagen_url || "",
-      descripcion: prod.descripcion || ""
+      descripcion: prod.descripcion || "",
     });
     setMostrarModal(true);
   };
@@ -149,21 +128,18 @@ export default function AdminPanel() {
 
   const guardarProducto = async (e) => {
     e.preventDefault();
-    
+
     const datosPlanta = {
-      nombre: formProd.nombre, 
+      nombre: formProd.nombre,
       categoria: formProd.categoria,
       precio: Number(formProd.precio),
       stock: Number(formProd.stock),
       imagen_url: formProd.imagen_url,
-      descripcion: formProd.descripcion
+      descripcion: formProd.descripcion,
     };
 
     if (modoModal === "crear") {
-      const { data, error } = await supabase
-        .from("products")
-        .insert([datosPlanta])
-        .select();
+      const { data, error } = await supabase.from("products").insert([datosPlanta]).select();
 
       if (error) {
         alert("Error al guardar: " + error.message);
@@ -172,16 +148,12 @@ export default function AdminPanel() {
         setMostrarModal(false);
       }
     } else {
-      const { data, error } = await supabase
-        .from("products")
-        .update(datosPlanta)
-        .eq("id", idSeleccionado)
-        .select();
+      const { data, error } = await supabase.from("products").update(datosPlanta).eq("id", idSeleccionado).select();
 
       if (error) {
         alert("Error al actualizar: " + error.message);
       } else if (data && data[0]) {
-        setProductos(productos.map(p => p.id === idSeleccionado ? data[0] : p));
+        setProductos(productos.map((p) => (p.id === idSeleccionado ? data[0] : p)));
         setMostrarModal(false);
       }
     }
@@ -193,19 +165,18 @@ export default function AdminPanel() {
       if (error) {
         alert("Error al eliminar: " + error.message);
       } else {
-        setProductos(productos.filter(p => p.id !== id));
+        setProductos(productos.filter((p) => p.id !== id));
       }
     }
   };
 
   const stockTotal = productos.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
-  const bajoStock = productos.filter(p => (Number(p.stock) || 0) < 5).length;
+  const bajoStock = productos.filter((p) => (Number(p.stock) || 0) < 5).length;
 
   if (cargando) {
     return <div style={{ textAlign: "center", marginTop: "50px", color: "white" }}>Cargando Panel de Control... 🌿</div>;
   }
 
-  // 🔒 SI NO HAY SESIÓN O NO ES TU EMAIL, MUESTRA EL FORMULARIO DE LOGIN PROTECTOR
   if (!sesion) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "#1e3d2f", fontFamily: "system-ui, sans-serif" }}>
@@ -214,45 +185,37 @@ export default function AdminPanel() {
             <h2 style={{ margin: 0, color: "#1e3d2f", fontWeight: "300", letterSpacing: "1px" }}>🌿 VITA ACCESO</h2>
             <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem", color: "#666" }}>Panel Interno de Gestión</p>
           </div>
-          {errorAuth && <div style={{ color: "#e74c3c", backgroundColor: "#fceae9", padding: "10px", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "15px", textAlign: "center" }}>{errorAuth}</div>}
+          {errorAuth && (
+            <div style={{ color: "#e74c3c", backgroundColor: "#fceae9", padding: "10px", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "15px", textAlign: "center" }}>
+              {errorAuth}
+            </div>
+          )}
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            <label htmlFor="admin-email" className="sr-only">Email de Administrador</label>
+            <label htmlFor="admin-email" className="sr-only">
+              Email de Administrador
+            </label>
             <input required type="email" id="admin-email" placeholder="Email de Administrador" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
-            <label htmlFor="admin-password" className="sr-only">Contraseña</label>
+            <label htmlFor="admin-password" className="sr-only">
+              Contraseña
+            </label>
             <input required type="password" id="admin-password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
-            <button type="submit" style={{ padding: "12px", backgroundColor: "#1e3d2f", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}>INGRESAR AL PANEL</button>
+            <button type="submit" style={{ padding: "12px", backgroundColor: "#1e3d2f", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}>
+              INGRESAR AL PANEL
+            </button>
           </div>
         </form>
       </div>
     );
   }
 
-  // 🔓 SI LA SESIÓN ES TUYA (fvitaller@itba.edu.ar), SE MUESTRA EL PANEL COMPLETO INTACTO
   return (
-    <div className="admin-layout" style={{
-      display: "flex",
-      minHeight: "100vh",
-      backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop')",
-      backgroundSize: "cover",
-      backgroundAttachment: "fixed",
-      fontFamily: "system-ui, sans-serif"
-    }}>
-
-      <aside className="admin-sidebar" style={{
-        width: "260px",
-        backgroundColor: "rgba(30, 61, 47, 0.9)",
-        backdropFilter: "blur(10px)",
-        padding: "30px 20px",
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "25px",
-        color: "white"
-      }}>
+    <div className="admin-layout" style={{ display: "flex", minHeight: "100vh", backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop')", backgroundSize: "cover", backgroundAttachment: "fixed", fontFamily: "system-ui, sans-serif" }}>
+      <aside className="admin-sidebar" style={{ width: "260px", backgroundColor: "rgba(30, 61, 47, 0.9)", backdropFilter: "blur(10px)", padding: "30px 20px", display: "flex", flexDirection: "column", gap: "25px", color: "white" }}>
         <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <h2 style={{ margin: 0, fontWeight: "200", fontSize: "1.5rem", letterSpacing: "2px" }}>🌿 VITA</h2>
           <span style={{ fontSize: "0.7rem", opacity: 0.8, letterSpacing: "1px" }}>CONECTADO COMO ADMIN</span>
         </div>
-        
+
         <nav style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div onClick={() => setVistaActiva("resumen")} style={{ padding: "12px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "0.9rem", backgroundColor: vistaActiva === "resumen" ? "rgba(255,255,255,0.15)" : "transparent", fontWeight: vistaActiva === "resumen" ? "bold" : "normal" }}>Panel Resumen</div>
           <div onClick={() => setVistaActiva("inventario")} style={{ padding: "12px 15px", borderRadius: "8px", cursor: "pointer", fontSize: "0.9rem", backgroundColor: vistaActiva === "inventario" ? "rgba(255,255,255,0.15)" : "transparent", fontWeight: vistaActiva === "inventario" ? "bold" : "normal" }}>Inventario de Plantas</div>
