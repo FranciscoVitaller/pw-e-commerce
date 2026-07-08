@@ -13,9 +13,11 @@ jobs:
       run:
         working-directory: botanica-web
     env:
-      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
-      MP_ACCESS_TOKEN: placeholder
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder' }}
+      MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN || 'placeholder' }}
+      MP_WEBHOOK_SECRET: ${{ secrets.MP_WEBHOOK_SECRET || 'placeholder' }}
     steps:
       - uses: actions/checkout@v4
 
