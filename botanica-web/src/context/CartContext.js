@@ -1,15 +1,27 @@
-"use client"; // Obligatorio porque usa estados
+"use client";
 
 import { createContext, useContext, useState } from 'react';
 
-// 1. Creamos el Contexto (el "espacio en la nube" para nuestros datos)
+/**
+ * Contexto global para el carrito de compras.
+ * @type {React.Context}
+ */
 const CartContext = createContext();
 
-// 2. Creamos el Proveedor (el componente que va a abrazar a toda nuestra app)
+/**
+ * Proveedor del contexto del carrito.
+ * Envuelve a la aplicación para proveer y mantener el estado global de las compras.
+ * 
+ * @param {Object} props - Propiedades del componente.
+ * @param {React.ReactNode} props.children - Componentes hijos.
+ */
 export function CartProvider({ children }) {
   const [carrito, setCarrito] = useState([]);
 
-  // Función para agregar (o sumar 1 si ya existe)
+  /**
+   * Agrega un producto al carrito o incrementa su cantidad si ya existe.
+   * @param {Object} planta - Objeto con los datos de la planta seleccionada.
+   */
   const agregarAlCarrito = (planta) => {
     const existe = carrito.find((item) => item.id === planta.id);
     if (existe) {
@@ -21,36 +33,39 @@ export function CartProvider({ children }) {
     }
   };
 
-  // NUEVA: Función para restar 1 (y si llega a 0, lo elimina)
+  /**
+   * Resta una unidad de un producto del carrito. Si la cantidad llega a 0, lo elimina por completo.
+   * @param {string|number} id - Identificador único del producto a modificar.
+   */
   const restarDelCarrito = (id) => {
     const existe = carrito.find((item) => item.id === id);
     if (existe.cantidad === 1) {
-      // Si hay 1 solo, lo filtramos (lo sacamos del carrito)
       setCarrito(carrito.filter((item) => item.id !== id));
     } else {
-      // Si hay más de 1, le restamos 1 a la cantidad
       setCarrito(carrito.map((item) =>
         item.id === id ? { ...item, cantidad: item.cantidad - 1 } : item
       ));
     }
   };
 
-  // Función para vaciar todo
+  /**
+   * Vacía completamente el carrito de compras, restaurando el estado inicial.
+   */
   const vaciarCarrito = () => setCarrito([]);
 
-  // Calculamos cuántos ítems hay en total para el numerito rojo del ícono
+  // Variables derivadas del estado actual del carrito
   const cantidadTotal = carrito.reduce((total, item) => total + item.cantidad, 0);
-  
-  // Calculamos el precio total acá para usarlo en cualquier lado
   const precioTotal = carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
 
   return (
-    // Pasamos todas estas funciones y variables para que cualquier página las pueda usar
     <CartContext.Provider value={{ carrito, agregarAlCarrito, restarDelCarrito, vaciarCarrito, cantidadTotal, precioTotal }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-// 3. Creamos un "Hook" personalizado para que sea fácil usar este contexto
+/**
+ * Hook personalizado para facilitar el acceso al contexto del carrito en cualquier componente.
+ * @returns {Object} Valores y funciones del estado global del carrito.
+ */
 export const useCart = () => useContext(CartContext);

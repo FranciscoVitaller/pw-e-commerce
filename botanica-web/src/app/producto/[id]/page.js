@@ -5,6 +5,10 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '../../../context/CartContext';
 
+/**
+ * Componente de Vista Detallada de Producto.
+ * Obtiene y renderiza dinámicamente la información de una planta basándose en el ID de la URL.
+ */
 export default function DetalleProducto() {
   const params = useParams();
   const idProducto = params.id;
@@ -14,25 +18,32 @@ export default function DetalleProducto() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
+    /**
+     * Consulta el catálogo local en formato JSON para encontrar el producto específico.
+     */
     const obtenerDetalle = async () => {
       try {
         const respuesta = await fetch('/productos.json');
         const datos = await respuesta.json();
         const plantaEncontrada = datos.find((item) => item.id.toString() === idProducto);
+        
         setPlanta(plantaEncontrada);
         setCargando(false);
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error crítico al cargar el catálogo:", error);
+        setCargando(false);
       }
     };
     obtenerDetalle();
   }, [idProducto]);
 
+  // Manejo de estados de carga y error (Early returns)
   if (cargando) return <div className="container"><p>Cargando información botánica...</p></div>;
-  if (!planta) return <div className="container"><p>Lo sentimos, no encontramos esa variedad.</p></div>;
+  if (!planta) return <div className="container"><p>Lo sentimos, no encontramos esa variedad en nuestro catálogo.</p></div>;
 
   return (
-    <div className="container">
+    <article className="container">
+      {/* Encabezado local de la vista del producto */}
       <header style={{ marginBottom: '30px' }}>
         <Link href="/" style={{ color: 'var(--verde-principal)', textDecoration: 'none', fontWeight: 'bold' }}>
           ← Volver al catálogo
@@ -68,7 +79,7 @@ export default function DetalleProducto() {
             style={{ padding: '18px 45px', fontSize: '1.1rem' }}
             onClick={() => {
               agregarAlCarrito(planta);
-              alert(`${planta.nombre} se sumó a tu carrito.`);
+              alert(`${planta.nombre} se sumó a tu carrito de compras.`);
             }}
           >
             Añadir al pedido
@@ -76,9 +87,10 @@ export default function DetalleProducto() {
         </div>
       </div>
 
+      {/* Pie de página local de la vista del producto */}
       <footer style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
         <p>Plantas Vita - Calidad Botánica Superior</p>
       </footer>
-    </div>
+    </article>
   );
 }
