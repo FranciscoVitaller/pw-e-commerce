@@ -43,6 +43,10 @@ export default function AdminPanel() {
 
   // 🔒 CONTROLADOR DE SESIÓN EXCLUSIVO PARA TU EMAIL
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && session.user?.email === "fvitaller@itba.edu.ar") {
         setSesion(session);

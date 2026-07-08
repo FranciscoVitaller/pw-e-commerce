@@ -77,6 +77,12 @@ export default function Home() {
    */
   useEffect(() => {
     const traerPlantas = async () => {
+      if (!supabase) {
+        setPlantas([]);
+        setCargando(false);
+        return;
+      }
+
       const { data, error } = await supabase.from("products").select("*");
       if (error) {
         console.error("Error al traer plantas:", error.message);
@@ -86,6 +92,12 @@ export default function Home() {
     };
 
     const verificarUsuario = async () => {
+      if (!supabase) {
+        setUsuario(null);
+        setCargando(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       setUsuario(user);
       setCargando(false);
@@ -93,6 +105,10 @@ export default function Home() {
 
     traerPlantas();
     verificarUsuario();
+
+    if (!supabase) {
+      return;
+    }
 
     // Listener para cambios en la sesión de autenticación
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
