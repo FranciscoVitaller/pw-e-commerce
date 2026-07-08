@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * ARCHIVO: src/app/login/page.js
+ * DESCRIPCIÓN: Pantalla de acceso de clientes. Permite iniciar sesión
+ * o registrarse contra Supabase Auth antes de poder finalizar una compra.
+ */
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
@@ -51,7 +57,7 @@ export default function Login() {
   };
 
   return (
-    <div className="container" style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+    <main className="container login-contenedor">
       <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
         
         <h2 style={{ textAlign: 'center', color: 'var(--verde-oscuro)', marginBottom: '20px' }}>
@@ -67,9 +73,10 @@ export default function Login() {
 
         <form style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Correo Electrónico:</label>
-            <input 
-              type="email" 
+            <label htmlFor="email" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Correo Electrónico:</label>
+            <input
+              type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
@@ -79,9 +86,10 @@ export default function Login() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Contraseña:</label>
-            <input 
-              type="password" 
+            <label htmlFor="password" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Contraseña:</label>
+            <input
+              type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
@@ -110,6 +118,6 @@ export default function Login() {
           </div>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

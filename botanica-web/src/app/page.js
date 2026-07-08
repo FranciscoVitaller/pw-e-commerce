@@ -7,6 +7,8 @@
  */
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
@@ -14,21 +16,37 @@ import { normalizarProducto, formatearPrecio, obtenerNombreProducto, obtenerCate
 
 /**
  * COMPONENTE: TarjetaProducto
- * Renderiza la información individual de una planta y el botón para agregar al carrito.
+ * Renderiza la información individual de una planta, el link a su vista de
+ * detalle y el botón para agregar al carrito.
  */
 function TarjetaProducto({ planta, agregarAlCarrito }) {
+<<<<<<< HEAD
   const producto = normalizarProducto(planta);
+=======
+  // Nota: Se eliminó el estado "zoom" y los eventos onMouseOver porque
+  // esas animaciones ahora se manejan de forma nativa y optimizada desde el CSS.
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
 
   return (
     <article className="tarjeta-producto">
-      <div>
+      <Link href={`/producto/${planta.id}`} className="tarjeta-producto-link">
         <div className="imagen-contenedor">
+<<<<<<< HEAD
           <img 
             src={obtenerImagenProducto(producto) || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"} 
             alt={obtenerNombreProducto(producto)}
+=======
+          <Image
+            src={planta.imagen_url || "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=80"}
+            alt={planta.nombre}
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
             className="imagen-planta"
+            width={500}
+            height={500}
+            unoptimized
           />
         </div>
+<<<<<<< HEAD
         <h3 className="titulo-planta">{obtenerNombreProducto(producto)}</h3>
         <p className="categoria-planta">{obtenerCategoriaProducto(producto)}</p>
       </div>
@@ -37,6 +55,18 @@ function TarjetaProducto({ planta, agregarAlCarrito }) {
         <span className="precio-planta">{formatearPrecio(obtenerPrecioProducto(producto))}</span>
         <button 
           onClick={() => agregarAlCarrito(producto)} 
+=======
+        <h3 className="titulo-planta">{planta.nombre}</h3>
+        <p className="categoria-planta">
+          {planta.categoria || "General"}
+        </p>
+      </Link>
+
+      <div className="acciones-planta">
+        <span className="precio-planta">${planta.precio}</span>
+        <button
+          onClick={() => agregarAlCarrito(planta)}
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
           className="btn-sumar"
         >
           Sumar 🛒
@@ -55,8 +85,7 @@ export default function Home() {
   const [plantas, setPlantas] = useState([]);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [pagando, setPagando] = useState(false);
-  
+
   // Estados para filtros
   const [busqueda, setBusqueda] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
@@ -70,6 +99,12 @@ export default function Home() {
    */
   useEffect(() => {
     const traerPlantas = async () => {
+      if (!supabase) {
+        setPlantas([]);
+        setCargando(false);
+        return;
+      }
+
       const { data, error } = await supabase.from("products").select("*");
       if (error) {
         console.error("Error al traer plantas:", error.message);
@@ -79,6 +114,12 @@ export default function Home() {
     };
 
     const verificarUsuario = async () => {
+      if (!supabase) {
+        setUsuario(null);
+        setCargando(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       setUsuario(user);
       setCargando(false);
@@ -86,6 +127,10 @@ export default function Home() {
 
     traerPlantas();
     verificarUsuario();
+
+    if (!supabase) {
+      return;
+    }
 
     // Listener para cambios en la sesión de autenticación
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -107,56 +152,42 @@ export default function Home() {
   };
   
   /**
-   * Procesa el pago enviando los datos del carrito al backend (MercadoPago/Stripe).
+   * Deriva al checkout real (src/app/checkout/page.js), que arma la orden
+   * con el carrito actual y llama a /api/checkout.
    */
-  const manejarPago = async () => {
+  const manejarPago = () => {
     if (!usuario) {
       alert("Debes iniciar sesión para comprar.");
       router.push("/login");
       return;
     }
-
-    setPagando(true);
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          items: carrito,
-          userId: usuario.id,
-          email: usuario.email 
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.init_point) {
-        vaciarCarrito(); 
-        window.location.href = data.init_point; 
-      } else {
-        alert(data.error || "Hubo un error al generar el pago.");
-      }
-    } catch (error) {
-      console.error("Error al procesar el pago", error);
-      alert("No se pudo conectar con el servidor de pagos.");
-    }
-    setPagando(false);
+    router.push("/checkout");
   };
 
   // Filtrado reactivo de plantas según búsqueda y categoría
   const plantasFiltradas = plantas.filter((planta) => {
+<<<<<<< HEAD
     const producto = normalizarProducto(planta);
     const nombrePlanta = obtenerNombreProducto(producto).toLowerCase();
     const categoriaPlanta = obtenerCategoriaProducto(producto);
     
+=======
+    const nombrePlanta = (planta.nombre || "").toLowerCase();
+    const categoriaPlanta = (planta.categoria || "General");
+
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
     const coincideBusqueda = nombrePlanta.includes(busqueda.toLowerCase());
     const coincideCategoria = categoriaFiltro === "Todas" || categoriaPlanta === categoriaFiltro;
-    
+
     return coincideBusqueda && coincideCategoria;
   });
 
   // Extracción de categorías únicas para el select
+<<<<<<< HEAD
   const categoriasUnicas = ["Todas", ...new Set(plantas.map((p) => obtenerCategoriaProducto(p)))];
+=======
+  const categoriasUnicas = ["Todas", ...new Set(plantas.map(p => p.categoria || "General"))];
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
 
   if (cargando) {
     return <div className="pantalla-carga">Cargando Plantas Vita... 🌿</div>;
@@ -225,7 +256,8 @@ export default function Home() {
 
         <aside className="aside-carrito">
           <h2>Tu Carrito ({cantidadTotal})</h2>
-          
+          <Link href="/carrito" className="link-carrito-completo">Ver carrito completo →</Link>
+
           {carrito.length === 0 ? (
             <p className="carrito-vacio">Aún no elegiste ninguna planta.</p>
           ) : (
@@ -234,8 +266,13 @@ export default function Home() {
                 {carrito.map((item) => (
                   <div key={item.id} className="item-carrito">
                     <div>
+<<<<<<< HEAD
                       <div className="item-nombre">{obtenerNombreProducto(item)}</div>
                       <div className="item-precio">{item.cantidad} x {formatearPrecio(obtenerPrecioProducto(item))}</div>
+=======
+                      <div className="item-nombre">{item.nombre}</div>
+                      <div className="item-precio">{item.cantidad} x ${item.precio}</div>
+>>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
                     </div>
                     <div className="item-controles">
                       <button onClick={() => restarDelCarrito(item.id)} className="btn-restar">-</button>
@@ -250,8 +287,8 @@ export default function Home() {
                   <span>Total:</span>
                   <span className="total-precio">{formatearPrecio(precioTotal)}</span>
                 </div>
-                <button onClick={manejarPago} disabled={pagando} className={`btn-pagar ${pagando ? 'procesando' : ''}`}>
-                  {pagando ? "Procesando..." : "Finalizar Compra 💳"}
+                <button onClick={manejarPago} className="btn-pagar">
+                  Finalizar Compra 💳
                 </button>
                 <button onClick={vaciarCarrito} className="btn-vaciar">Vaciar Carrito</button>
               </div>

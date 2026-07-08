@@ -8,8 +8,16 @@ const client = new MercadoPagoConfig({
 });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const hasSupabaseConfig = Boolean(
+  supabaseUrl &&
+  supabaseServiceRoleKey &&
+  supabaseUrl !== "placeholder" &&
+  supabaseServiceRoleKey !== "placeholder"
+);
+const supabase = hasSupabaseConfig
+  ? createClient(supabaseUrl, supabaseServiceRoleKey)
+  : null;
 
 export async function POST(request) {
   try {
@@ -49,6 +57,11 @@ export async function POST(request) {
 
     if (type !== "payment" || !id) {
       return NextResponse.json({ received: true }, { status: 200 });
+    }
+
+    if (!supabase) {
+      console.warn("⚠️ Webhook recibido sin configuración de Supabase. Se omite la actualización de la base de datos.");
+      return NextResponse.json({ success: true, skipped: true }, { status: 200 });
     }
 
     console.log(`🔔 ¡Llegó un aviso de Mercado Pago! ID: ${id}`);

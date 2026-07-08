@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🌿 Plantas Vita — E-Commerce
 
 Sitio web oficial de **Plantas Vita**, un e-commerce dedicado a la venta de plantas online para conectar a las personas con la naturaleza.
@@ -51,23 +50,27 @@ npm run lint     # corre ESLint
 
 ## 📂 Estructura del proyecto
 
+```
 src/
 ├── app/
-│   ├── admin/            # Panel de control protegido para administradores
-│   ├── api/              # Endpoints del backend (checkout y webhooks de MP)
-│   ├── carrito/          # Resumen del carrito de compras
-│   ├── checkout/         # Interfaz para finalizar la compra
-│   ├── login/            # Pantalla de inicio de sesión
-│   ├── producto/[id]/    # Vista detallada y dinámica de cada planta
-│   ├── globals.css       # Hoja de estilos principal y paleta de colores
-│   ├── layout.js         # Layout raíz (fuentes de Google y metadatos)
-│   └── page.js           # Home page y catálogo principal de productos
+│   ├── admin/            # Panel CRUD de productos (protegido por email de admin)
+│   ├── api/
+│   │   ├── checkout/     # Valida stock, crea la orden y la preferencia de Mercado Pago
+│   │   └── webhook/      # Recibe la notificación de pago y actualiza orden + stock
+│   ├── carrito/          # Vista de página completa del carrito
+│   ├── checkout/         # Formulario real de checkout (valida y llama a /api/checkout)
+│   ├── login/            # Inicio de sesión / registro de clientes
+│   ├── producto/[id]/    # Vista detallada de cada planta (lee de Supabase)
+│   ├── globals.css       # Hoja de estilos principal, variables y media queries
+│   ├── layout.js         # Layout raíz (fuente, metadatos, CartProvider)
+│   └── page.js           # Home: catálogo, filtros y carrito lateral
 │
 ├── context/
-│   └── CartContext.js    # Lógica global para manejar los items del carrito
+│   └── CartContext.js    # Estado global del carrito (en memoria, no persiste)
 │
 └── lib/
-    └── supabase.js       # Configuración y cliente de conexión a Supabase
+    └── supabase.js       # Cliente de Supabase para el navegador (clave anon)
+```
 
 ## 🛒 Flujo de compra
 
@@ -84,8 +87,3 @@ src/
 ## ✒️ Autor
 
 Francisco Vitaller
-=======
-# Plantas Vita — E-Commerce
-
-El proyecto vive en [`botanica-web/`](./botanica-web). Ver [`botanica-web/README.md`](./botanica-web/README.md) para stack, instrucciones de instalación y estructura del código.
->>>>>>> 0b6620a17ed9ee8da933725665e8a879fbf48d97
