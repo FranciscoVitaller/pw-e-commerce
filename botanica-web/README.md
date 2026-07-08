@@ -1,10 +1,11 @@
 # 🌿 Plantas Vita - E-Commerce
 
-Sitio web oficial de **Plantas Vita**, un e-commerce dedicado a la venta de plantas online para conectar a las personas con la naturaleza.
+Sitio web oficial de **Plantas Vita**, un e-commerce dedicado a la venta de plantas online para conectar a las personas con la naturaleza. 
 
 ## 💻 Tecnologías (Stack)
 
 | Capa | Elección |
+|---|---|
 | Framework | Next.js (App Router) |
 | Lenguaje | JavaScript |
 | Estilos | CSS Puro (Variables globales, Mobile First) |
@@ -15,18 +16,27 @@ Sitio web oficial de **Plantas Vita**, un e-commerce dedicado a la venta de plan
 ## 🌿 Ramas del Proyecto (Branches)
 
 | Rama | Propósito |
+|---|---|
 | `main` | Producción — la versión final, estable y visible para los usuarios. |
 
 ## 🚀 Desarrollo Local
 
 Para correr este proyecto en tu propia computadora, sigue estos pasos:
-
 ```bash
 cp .env.example .env.local   # Completar con las credenciales de Supabase y Mercado Pago
 npm install
 npm run dev                  # El proyecto abrirá en http://localhost:3000
 
+📜 Scripts
+
+Bash
+npm run dev      # Inicia el servidor de desarrollo
+npm run build    # Crea la versión optimizada para producción
+npm run start    # Inicia el servidor en producción
+
 📂 Estructura del Proyecto
+
+Plaintext
 src/
 ├── app/
 │   ├── admin/            # Panel de control protegido para administradores
@@ -44,3 +54,6 @@ src/
 │
 └── lib/
     └── supabase.js       # Configuración y cliente de conexión a Supabase
+
+✒️ Autor
+Francisco Vitaller
