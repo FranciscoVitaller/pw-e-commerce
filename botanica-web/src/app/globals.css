@@ -26,6 +26,19 @@ body {
   line-height: 1.6;
 }
 
+/* Oculta visualmente un elemento pero lo deja disponible para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* =========================================================
    ESTILOS ORIGINALES (Conservados por compatibilidad)
    ========================================================= */
@@ -224,6 +237,12 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
+.tarjeta-producto-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
 .imagen-contenedor {
   width: 100%; 
   height: 220px; 
@@ -287,7 +306,7 @@ body {
 .total-precio { color: var(--verde-principal); }
 .btn-pagar { width: 100%; background-color: var(--verde-principal); color: var(--blanco); border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
 .btn-pagar:hover { background-color: var(--verde-oscuro); }
-.btn-pagar.procesando { background-color: #95a5a6; cursor: wait; }
+.link-carrito-completo { display: inline-block; margin-bottom: 15px; font-size: 0.85rem; color: var(--verde-principal); }
 .btn-vaciar { width: 100%; background-color: transparent; color: #95a5a6; border: none; margin-top: 15px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; }
 
 /* --- FOOTER --- */
@@ -306,7 +325,7 @@ body {
    Punto clave para la corrección del profesor
    ========================================================= */
 @media screen and (max-width: 768px) {
-  
+
   /* El header se apila en vertical en celulares */
   .header-principal {
     flex-direction: column;
@@ -317,7 +336,7 @@ body {
     width: 100%;
     justify-content: center;
   }
-  
+
   /* El contenedor principal deja de estar lado a lado */
   .main-contenedor {
     flex-direction: column;
@@ -335,5 +354,76 @@ body {
     position: static;
     margin-top: 20px;
     min-width: 100%;
+  }
+}
+
+/* --- LOGIN (login/page.js) --- */
+.login-contenedor {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+/* =========================================================
+   RESPONSIVIDAD: PANEL DE ADMINISTRACIÓN (admin/page.js)
+   ========================================================= */
+@media screen and (max-width: 900px) {
+  /* El sidebar deja de estar al costado y pasa arriba del contenido */
+  .admin-layout {
+    flex-direction: column !important;
+  }
+  .admin-sidebar {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  .admin-main {
+    padding: 20px !important;
+  }
+  /* El encabezado de inventario se apila para no achicar el botón */
+  .admin-inventario-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  /* La tabla de productos scrollea en horizontal en vez de romper el layout */
+  .admin-tabla-wrapper {
+    overflow-x: auto;
+  }
+  .admin-tabla-wrapper table {
+    min-width: 640px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVIDAD: CARRITO, LOGIN Y DETALLE DE PRODUCTO
+   ========================================================= */
+@media screen and (max-width: 600px) {
+  /* Carrito de página completa: cada renglón se apila en columna */
+  .item-carrito-fila {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+  .item-carrito-fila > * {
+    width: 100% !important;
+  }
+
+  /* Login: menos aire arriba en pantallas chicas */
+  .login-contenedor {
+    margin-top: 40px !important;
+    padding: 20px !important;
+  }
+
+  /* Detalle de producto: tipografía y espaciado más chicos */
+  .producto-detalle {
+    padding: 25px !important;
+  }
+  .producto-detalle h1 {
+    font-size: 2rem !important;
+  }
+  .producto-detalle .producto-precio-acciones {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 20px;
   }
 }

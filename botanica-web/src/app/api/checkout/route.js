@@ -23,7 +23,7 @@ const supabase = createClient(
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { items, email, userId } = body; 
+    const { items, email, userId, nombre, telefono } = body;
 
     // 1. Verificación estricta de stock disponible en base de datos
     for (const item of items) {
@@ -39,13 +39,13 @@ export async function POST(request) {
 
       if (Number(product.stock) < Number(item.cantidad)) {
         return NextResponse.json(
-          { error: `¡Ups! No hay stock suficiente de ${item.nombre || item.name}. Solo quedan ${product.stock} unidades disponibles.` },
+          { error: `¡Ups! No hay stock suficiente de ${item.nombre}. Solo quedan ${product.stock} unidades disponibles.` },
           { status: 400 }
         );
       }
     }
 
-    const totalCompra = items.reduce((acc, item) => acc + (Number(item.precio || item.price || 0) * Number(item.cantidad)), 0);
+    const totalCompra = items.reduce((acc, item) => acc + (Number(item.precio || 0) * Number(item.cantidad)), 0);
 
     // 2. Registro de la orden maestra en tabla "orders"
     const { data: orden, error: supabaseError } = await supabase
@@ -67,7 +67,7 @@ export async function POST(request) {
       order_id: orden.id,
       product_id: item.id,
       cantidad: Number(item.cantidad),
-      precio_unitario: Number(item.precio || item.price || 0)
+      precio_unitario: Number(item.precio || 0)
     }));
 
     const { error: itemsError } = await supabase
@@ -81,8 +81,8 @@ export async function POST(request) {
     
     const mpItems = items.map((item) => ({
       id: item.id.toString(),
-      title: item.nombre || item.name,
-      unit_price: Number(item.precio || item.price),
+      title: item.nombre,
+      unit_price: Number(item.precio),
       quantity: Number(item.cantidad),
       currency_id: "ARS",
     }));
@@ -90,6 +90,11 @@ export async function POST(request) {
     const result = await preference.create({
       body: {
         items: mpItems,
+        payer: {
+          email: email || 'fran@prueba.com',
+          ...(nombre ? { name: nombre } : {}),
+          ...(telefono ? { phone: { number: telefono } } : {}),
+        },
         notification_url: "https://pw-e-commerce-flame.vercel.app/api/webhook",
         metadata: {
           order_id: orden.id,

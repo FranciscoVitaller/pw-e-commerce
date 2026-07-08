@@ -29,6 +29,17 @@ export default function AdminPanel() {
 
   const router = useRouter();
 
+  const traerProductos = async () => {
+    setCargando(true);
+    const { data, error } = await supabase.from("products").select("*").order('id', { ascending: false });
+    if (error) {
+      console.error("Error al traer productos:", error);
+    } else {
+      setProductos(data || []);
+    }
+    setCargando(false);
+  };
+
   // 🔒 CONTROLADOR DE SESIÓN EXCLUSIVO PARA TU EMAIL
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,17 +64,6 @@ export default function AdminPanel() {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const traerProductos = async () => {
-    setCargando(true);
-    const { data, error } = await supabase.from("products").select("*").order('id', { ascending: false });
-    if (error) {
-      console.error("Error al traer productos:", error);
-    } else {
-      setProductos(data || []);
-    }
-    setCargando(false);
-  };
 
   // 🔒 LOGIN BLINDADO: Filtra el email antes de intentar ingresar
   const manejarLogin = async (e) => {
@@ -184,8 +184,10 @@ export default function AdminPanel() {
           </div>
           {errorAuth && <div style={{ color: "#e74c3c", backgroundColor: "#fceae9", padding: "10px", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "15px", textAlign: "center" }}>{errorAuth}</div>}
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            <input required type="email" placeholder="Email de Administrador" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
-            <input required type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
+            <label htmlFor="admin-email" className="sr-only">Email de Administrador</label>
+            <input required type="email" id="admin-email" placeholder="Email de Administrador" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
+            <label htmlFor="admin-password" className="sr-only">Contraseña</label>
+            <input required type="password" id="admin-password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", outline: "none" }} />
             <button type="submit" style={{ padding: "12px", backgroundColor: "#1e3d2f", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}>INGRESAR AL PANEL</button>
           </div>
         </form>
@@ -195,20 +197,20 @@ export default function AdminPanel() {
 
   // 🔓 SI LA SESIÓN ES TUYA (fvitaller@itba.edu.ar), SE MUESTRA EL PANEL COMPLETO INTACTO
   return (
-    <div style={{ 
-      display: "flex", 
-      minHeight: "100vh", 
+    <div className="admin-layout" style={{
+      display: "flex",
+      minHeight: "100vh",
       backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2000&auto=format&fit=crop')",
       backgroundSize: "cover",
       backgroundAttachment: "fixed",
-      fontFamily: "system-ui, sans-serif" 
+      fontFamily: "system-ui, sans-serif"
     }}>
-      
-      <aside style={{ 
-        width: "260px", 
-        backgroundColor: "rgba(30, 61, 47, 0.9)", 
+
+      <aside className="admin-sidebar" style={{
+        width: "260px",
+        backgroundColor: "rgba(30, 61, 47, 0.9)",
         backdropFilter: "blur(10px)",
-        padding: "30px 20px", 
+        padding: "30px 20px",
         display: "flex", 
         flexDirection: "column", 
         gap: "25px",
@@ -231,7 +233,7 @@ export default function AdminPanel() {
         </div>
       </aside>
 
-      <main style={{ flex: 1, padding: "40px", backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)", overflowY: "auto" }}>
+      <main className="admin-main" style={{ flex: 1, padding: "40px", backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)", overflowY: "auto" }}>
         {vistaActiva === "resumen" && (
           <div>
             <h1 style={{ margin: "0 0 10px 0", fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Métricas del Negocio</h1>
@@ -254,7 +256,7 @@ export default function AdminPanel() {
 
         {vistaActiva === "inventario" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
+            <div className="admin-inventario-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: "2.2rem", fontWeight: "300", color: "#1e3d2f" }}>Gestión de Stock</h1>
                 <p style={{ margin: "5px 0 0 0", color: "#555" }}>Tienes {productos.length} variedades registradas</p>
@@ -262,7 +264,7 @@ export default function AdminPanel() {
               <button onClick={abrirModalCrear} style={{ backgroundColor: "#2ecc71", color: "white", border: "none", padding: "12px 25px", borderRadius: "30px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 4px 15px rgba(46, 204, 113, 0.3)" }}>+ Añadir Nueva Planta</button>
             </div>
 
-            <div style={{ backgroundColor: "white", borderRadius: "15px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+            <div className="admin-tabla-wrapper" style={{ backgroundColor: "white", borderRadius: "15px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr style={{ backgroundColor: "#f8faf9", color: "#1e3d2f", fontSize: "0.85rem", borderBottom: "1px solid #eee" }}>
@@ -323,30 +325,30 @@ export default function AdminPanel() {
             <form onSubmit={guardarProducto} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div style={{ display: "flex", gap: "20px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 2 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>NOMBRE</label>
-                  <input required type="text" name="nombre" value={formProd.nombre} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
+                  <label htmlFor="nombre" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>NOMBRE</label>
+                  <input required type="text" id="nombre" name="nombre" value={formProd.nombre} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>CATEGORÍA</label>
-                  <input required type="text" name="categoria" value={formProd.categoria} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
+                  <label htmlFor="categoria" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>CATEGORÍA</label>
+                  <input required type="text" id="categoria" name="categoria" value={formProd.categoria} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>DESCRIPCIÓN</label>
-                <textarea required name="descripcion" value={formProd.descripcion} onChange={manejarCambioInput} rows="2" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", resize: "none" }} />
+                <label htmlFor="descripcion" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>DESCRIPCIÓN</label>
+                <textarea required id="descripcion" name="descripcion" value={formProd.descripcion} onChange={manejarCambioInput} rows="2" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9", resize: "none" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>URL DE LA IMAGEN</label>
-                <input required type="text" name="imagen_url" value={formProd.imagen_url} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
+                <label htmlFor="imagen_url" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>URL DE LA IMAGEN</label>
+                <input required type="text" id="imagen_url" name="imagen_url" value={formProd.imagen_url} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
               </div>
               <div style={{ display: "flex", gap: "20px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>PRECIO ($)</label>
-                  <input required type="number" name="precio" value={formProd.precio} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
+                  <label htmlFor="precio" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>PRECIO ($)</label>
+                  <input required type="number" id="precio" name="precio" value={formProd.precio} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>STOCK</label>
-                  <input required type="number" name="stock" value={formProd.stock} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
+                  <label htmlFor="stock" style={{ fontSize: "0.8rem", color: "#888", fontWeight: "bold" }}>STOCK</label>
+                  <input required type="number" id="stock" name="stock" value={formProd.stock} onChange={manejarCambioInput} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} />
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "10px" }}>

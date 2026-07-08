@@ -1,18 +1,19 @@
 "use client";
 
+/**
+ * ARCHIVO: src/app/carrito/page.js
+ * DESCRIPCIÓN: Vista de página completa del carrito de compras, alternativa
+ * al carrito lateral de la home para revisar y editar el pedido en detalle.
+ */
+
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 
 export default function CarritoPage() {
   const { carrito, agregarAlCarrito, restarDelCarrito, vaciarCarrito, precioTotal } = useCart();
 
-  const finalizarCompra = () => {
-    alert(`Gracias por elegir Plantas Vita 🌿\nTu pedido por $${precioTotal} está siendo procesado.`);
-    vaciarCarrito();
-  };
-
   return (
-    <div className="container">
+    <main className="container">
       <header style={{ marginBottom: '40px' }}>
         <Link href="/" style={{ color: 'var(--verde-principal)', textDecoration: 'none', fontWeight: 'bold' }}>
           ← Volver a la tienda
@@ -31,7 +32,7 @@ export default function CarritoPage() {
         <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', boxShadow: 'var(--sombra)' }}>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {carrito.map((item) => (
-              <li key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', padding: '20px 0' }}>
+              <li key={item.id} className="item-carrito-fila" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', padding: '20px 0' }}>
                 <div style={{ flex: '1' }}>
                   <h3 style={{ fontSize: '1.2rem', color: 'var(--verde-oscuro)' }}>{item.nombre}</h3>
                   <p style={{ color: '#888', fontSize: '0.9rem' }}>Precio unitario: ${item.precio}</p>
@@ -67,6 +68,6 @@ export default function CarritoPage() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }
